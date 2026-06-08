@@ -51,4 +51,15 @@ if [ -d "$WA_SRC" ]; then
 
     echo "[wa-bridge] Starting on port $WA_PORT..." >> /home/LogFiles/wa-bridge.log
     cd "$WA_SRC"
-    PORT="$WA_PORT" node index.js >> /ho
+    PORT="$WA_PORT" node index.js >> /home/LogFiles/wa-bridge.log 2>&1
+  ) &
+  echo "[startup] WhatsApp bridge setup started in background (PID $!)"
+else
+  echo "[startup] ⚠️  wa-bridge not found — skipping"
+fi
+
+# ── FastAPI Backend (foreground — keeps container alive) ───────
+# Working directory is /home/site/wwwroot/ where app/ lives
+echo "[startup] Starting FastAPI on port 8000..."
+cd /home/site/wwwroot
+exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1

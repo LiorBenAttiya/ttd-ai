@@ -1,4 +1,8 @@
 import logging
+import os
+import shutil
+import subprocess
+import threading
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,9 +17,81 @@ logging.basicConfig(level=settings.LOG_LEVEL)
 log = logging.getLogger(__name__)
 
 
+def _start_wa_bridge() -> None:
+    """Start the Node.js WhatsApp bridge in the background.
+
+    Runs npm install on first deploy (persisted to /home/wa-bridge/ across
+    restarts), then spawns the bridge process. Designed to be called from a
+    daemon thread so it never blocks FastAPI startup.
+    """
+    wa_src = "/home/site/wwwroot/wa-bridge"
+    if not os.path.exists(wa_src):
+        log.info("wa-bridge not found — skipping")
+        return
+
+    wa_home = "/home/wa-bridge"
+    os.makedirs(wa_home, exist_ok=True)
+    os.makedirs("/home/LogFiles", exist_ok=True)
+
+    log_path = "/home/LogFiles/wa-bridge.log"
+    pkg_src = os.path.join(wa_src, "package.json")
+    pkg_dst = os.path.join(wa_home, "package.json")
+    installed_flag = os.path.join(wa_home, ".installed")
+
+    # Only reinstall when package.json changes
+    needs_install = not os.path.exists(installed_flag)
+    if not needs_install and os.path.exists(pkg_dst):
+        try:
+            needs_install = open(pkg_src).read() != open(pkg_dst).read()
+        except OSError:
+            needs_install = True
+
+    with open(log_path, "a") as lf:
+        if needs_install:
+            lf.write("[wa-bridge] Running npm install (first run ~5 min)...\n")
+            lf.flush()
+            shutil.copy(pkg_src, pkg_dst)
+            try:
+                shutil.copy(os.path.join(wa_src, "package-lock.json"), wa_home)
+            except OSError:
+                pass
+            subprocess.run(
+                ["npm", "install", "--production"],
+                cwd=wa_home, stdout=lf, stderr=lf, check=False,
+            )
+            open(installed_flag, "w").close()
+            lf.write("[wa-bridge] npm install complete\n")
+        else:
+            lf.write("[wa-bridge] npm packages cached — skipping install\n")
+        lf.flush()
+
+    # Symlink node_modules into source dir
+    nm_link = os.path.join(wa_src, "node_modules")
+    nm_target = os.path.join(wa_home, "node_modules")
+    if os.path.islink(nm_link):
+        os.unlink(nm_link)
+    if os.path.exists(nm_target):
+        os.symlink(nm_target, nm_link)
+
+    # Launch bridge process
+    env = {**os.environ, "PORT": os.getenv("WA_PORT", "3001")}
+    with open(log_path, "a") as lf:
+        lf.write(f"[wa-bridge] Starting on port {env['PORT']}...\n")
+    subprocess.Popen(
+        ["node", "index.js"],
+        cwd=wa_src,
+        env=env,
+        stdout=open(log_path, "a"),
+        stderr=subprocess.STDOUT,
+    )
+    log.info("wa-bridge started")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     log.info("TTD AI API starting — env=%s", settings.APP_ENV)
+    # Start wa-bridge in a daemon thread — never blocks FastAPI startup
+    threading.Thread(target=_start_wa_bridge, daemon=True, name="wa-bridge").start()
     yield
     log.info("TTD AI API shutting down")
 

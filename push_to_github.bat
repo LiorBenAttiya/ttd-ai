@@ -25,7 +25,7 @@ echo.
 echo [2/7] Staging all files...
 git add -A
 echo     Staged files:
-git diff --cached --name-only --stat
+git --no-pager diff --cached --name-only --stat
 
 echo.
 echo [3/7] Checking what is staged...

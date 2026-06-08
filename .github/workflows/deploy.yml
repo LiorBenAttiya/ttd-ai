@@ -33,9 +33,9 @@ jobs:
       - name: tsc --noEmit
         run: npx tsc --noEmit
 
-  # ── 2. Build & deploy frontend to GitHub Pages ───────────────
+  # ── 2. Build & deploy frontend to GitHub Pages ────────────────
   deploy-frontend:
-    name: Frontend → GitHub Pages
+    name: Frontend to GitHub Pages
     runs-on: ubuntu-latest
     needs: typecheck
     permissions:
@@ -69,24 +69,24 @@ jobs:
 
   # ── 3. Deploy backend + wa-bridge to Azure App Service ────────
   deploy-backend:
-    name: Backend + WA Bridge → Azure
+    name: Backend + WA Bridge to Azure
     runs-on: ubuntu-latest
     needs: typecheck
     steps:
       - uses: actions/checkout@v4
 
-      # Build a combined package:
-      #   deploy-pkg/              ← Oryx sees requirements.txt at root → builds /antenv/
-      #     app/                   ← FastAPI app (from backend/)
-      #     requirements.txt       ← Python deps
-      #     wa-bridge/             ← Node.js WA bridge
-      #     startup.sh             ← starts both services
+      # deploy-pkg layout (Oryx needs requirements.txt at root):
+      #   app/             FastAPI app
+      #   requirements.txt Python deps
+      #   wa-bridge/       Node.js WA bridge (started by FastAPI lifespan)
       - name: Prepare deployment package
         run: |
           mkdir -p deploy-pkg
           cp -r backend/. deploy-pkg/
+          # Remove local Windows venv — Oryx creates /antenv on Azure
+          rm -rf deploy-pkg/venv deploy-pkg/__pycache__
+          # Include wa-bridge source (node_modules installed at runtime by FastAPI)
           cp -r wa-bridge deploy-pkg/wa-bridge
-          cp startup.sh deploy-pkg/startup.sh
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
