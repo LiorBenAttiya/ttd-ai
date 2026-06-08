@@ -67,19 +67,32 @@ def _start_wa_bridge() -> None:
     wa_home = "/home/wa-bridge"
     os.makedirs(wa_home, exist_ok=True)
     os.makedirs("/home/LogFiles", exist_ok=True)
+    os.makedirs("/home/puppeteer-cache", exist_ok=True)
 
-    log_path = "/home/LogFiles/wa-bridge.log"
-    pkg_src = os.path.join(wa_src, "package.json")
-    pkg_dst = os.path.join(wa_home, "package.json")
+    log_path    = "/home/LogFiles/wa-bridge.log"
+    pkg_src     = os.path.join(wa_src, "package.json")
+    pkg_dst     = os.path.join(wa_home, "package.json")
     installed_flag = os.path.join(wa_home, ".installed")
+    nm_target   = os.path.join(wa_home, "node_modules")
 
-    # Only reinstall when package.json changes
-    needs_install = not os.path.exists(installed_flag)
+    # Reinstall if: flag missing, node_modules missing, or package.json changed
+    needs_install = (
+        not os.path.exists(installed_flag)
+        or not os.path.exists(nm_target)
+    )
     if not needs_install and os.path.exists(pkg_dst):
         try:
             needs_install = open(pkg_src).read() != open(pkg_dst).read()
         except OSError:
             needs_install = True
+
+    # Env vars for both npm install and the node process
+    node_env = {
+        **os.environ,
+        "PORT":                os.getenv("WA_PORT", "3001"),
+        "PUPPETEER_CACHE_DIR": "/home/puppeteer-cache",
+        "SESSION_PATH":        "/home/wa-bridge/.wwebjs_auth",
+    }
 
     with open(log_path, "a") as lf:
         if needs_install:
@@ -90,32 +103,35 @@ def _start_wa_bridge() -> None:
                 shutil.copy(os.path.join(wa_src, "package-lock.json"), wa_home)
             except OSError:
                 pass
-            subprocess.run(
+            result = subprocess.run(
                 [npm_bin, "install", "--production"],
-                cwd=wa_home, stdout=lf, stderr=lf, check=False,
+                cwd=wa_home, stdout=lf, stderr=lf, check=False, env=node_env,
             )
-            open(installed_flag, "w").close()
-            lf.write("[wa-bridge] npm install complete\n")
+            if result.returncode == 0:
+                open(installed_flag, "w").close()
+                lf.write("[wa-bridge] npm install complete\n")
+            else:
+                lf.write(f"[wa-bridge] npm install FAILED (exit {result.returncode}) — will retry next restart\n")
+                lf.flush()
+                return
         else:
             lf.write("[wa-bridge] npm packages cached — skipping install\n")
         lf.flush()
 
-    # Symlink node_modules into source dir
+    # Symlink node_modules into source dir so index.js can find them
     nm_link = os.path.join(wa_src, "node_modules")
-    nm_target = os.path.join(wa_home, "node_modules")
     if os.path.islink(nm_link):
         os.unlink(nm_link)
-    if os.path.exists(nm_target):
+    if os.path.exists(nm_target) and not os.path.exists(nm_link):
         os.symlink(nm_target, nm_link)
 
     # Launch bridge process
-    env = {**os.environ, "PORT": os.getenv("WA_PORT", "3001")}
     with open(log_path, "a") as lf:
-        lf.write(f"[wa-bridge] Starting on port {env['PORT']}...\n")
+        lf.write(f"[wa-bridge] Starting on port {node_env['PORT']}...\n")
     subprocess.Popen(
         [node_bin, "index.js"],
         cwd=wa_src,
-        env=env,
+        env=node_env,
         stdout=open(log_path, "a"),
         stderr=subprocess.STDOUT,
     )
