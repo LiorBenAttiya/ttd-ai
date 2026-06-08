@@ -7,7 +7,6 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: TTDAI
-  AZURE_WEBAPP_PACKAGE_PATH: '.'   # deploy full repo; startup.sh runs both services
   PYTHON_VERSION: '3.12'
   NODE_VERSION: '20'
 
@@ -76,12 +75,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Let Azure's Oryx build system handle pip install via
-      # SCM_DO_BUILD_DURING_DEPLOYMENT=true + PROJECT=backend env var.
-      # startup.sh handles npm install for wa-bridge on first boot.
+      # Build a combined package:
+      #   deploy-pkg/              ← Oryx sees requirements.txt at root → builds /antenv/
+      #     app/                   ← FastAPI app (from backend/)
+      #     requirements.txt       ← Python deps
+      #     wa-bridge/             ← Node.js WA bridge
+      #     startup.sh             ← starts both services
+      - name: Prepare deployment package
+        run: |
+          mkdir -p deploy-pkg
+          cp -r backend/. deploy-pkg/
+          cp -r wa-bridge deploy-pkg/wa-bridge
+          cp startup.sh deploy-pkg/startup.sh
+
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          package: deploy-pkg
