@@ -45,3 +45,9 @@ backend/.env.production
 # WhatsApp bridge session (locked files, sensitive)
 wa-bridge/.wwebjs_auth/
 wa-bridge/.wwebjs_cache/
+
+# Azure publish profile (contains credentials)
+*.PublishSettings
+
+# Email tokens
+backend/email_tokens.json
