@@ -4,11 +4,21 @@
 # Starts both the Node.js WhatsApp bridge (port 3001)
 # and the FastAPI backend (port 8000, main external port).
 # ═══════════════════════════════════════════════════════════════
-set -e
 
 echo "[startup] ════════════════════════════════════════"
 echo "[startup] TTD AI multi-service startup"
 echo "[startup] ════════════════════════════════════════"
+
+# ── Activate Python virtual environment (Oryx creates /antenv) ─
+if [ -f "/antenv/bin/activate" ]; then
+  echo "[startup] Activating /antenv Python environment"
+  source /antenv/bin/activate
+elif [ -f "/home/site/wwwroot/backend/.venv/bin/activate" ]; then
+  echo "[startup] Activating backend/.venv Python environment"
+  source /home/site/wwwroot/backend/.venv/bin/activate
+else
+  echo "[startup] No venv found — using system Python"
+fi
 
 WA_SRC="/home/site/wwwroot/wa-bridge"
 WA_HOME="/home/wa-bridge"
