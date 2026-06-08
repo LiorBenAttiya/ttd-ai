@@ -1,0 +1,14 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.env
+.env.*
+email_tokens.json
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+migrations/

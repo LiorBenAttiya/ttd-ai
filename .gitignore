@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build artifacts
+*.docx
+*.pyc
+gemini_ui.png
+
+# Env files (keep .example files)
+frontend/.env.production
+backend/.env.production
+
+# WhatsApp bridge session (locked files, sensitive)
+wa-bridge/.wwebjs_auth/
+wa-bridge/.wwebjs_cache/
