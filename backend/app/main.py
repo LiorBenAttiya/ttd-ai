@@ -24,7 +24,7 @@ def _start_wa_bridge() -> None:
     restarts), then spawns the bridge process. Designed to be called from a
     daemon thread so it never blocks FastAPI startup.
     """
-    wa_src = "/home/site/wwwroot/wa-bridge"
+    wa_src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "wa-bridge")
     if not os.path.exists(wa_src):
         log.info("wa-bridge not found — skipping")
         return
