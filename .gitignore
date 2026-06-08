@@ -51,3 +51,7 @@ wa-bridge/.wwebjs_cache/
 
 # Email tokens
 backend/email_tokens.json
+
+# OAuth tokens (contain secrets — never commit)
+backend/email_tokens.json
+email_tokens.json
