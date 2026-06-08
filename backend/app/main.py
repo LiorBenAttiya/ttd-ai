@@ -17,6 +17,35 @@ logging.basicConfig(level=settings.LOG_LEVEL)
 log = logging.getLogger(__name__)
 
 
+def _get_node_bin() -> tuple[str, str] | None:
+    """Return (node, npm) absolute paths, downloading Node.js 20 LTS if needed.
+
+    Installs to /home/nodejs/ which is persisted across restarts on Azure App
+    Service, so the ~50 MB download only happens once per instance lifecycle.
+    """
+    node_home = "/home/nodejs"
+    node_bin = os.path.join(node_home, "bin", "node")
+    npm_bin  = os.path.join(node_home, "bin", "npm")
+
+    if os.path.exists(node_bin) and os.path.exists(npm_bin):
+        log.info("Node.js found at %s", node_bin)
+        return node_bin, npm_bin
+
+    log.info("Node.js not in /home/nodejs — downloading Node 20 LTS (~50 MB)...")
+    os.makedirs(node_home, exist_ok=True)
+    url = "https://nodejs.org/dist/v20.19.0/node-v20.19.0-linux-x64.tar.xz"
+    result = subprocess.run(
+        ["bash", "-c", f"curl -fsSL '{url}' | tar -xJ -C '{node_home}' --strip-components=1"],
+        check=False,
+    )
+    if result.returncode != 0 or not os.path.exists(node_bin):
+        log.error("Failed to download/install Node.js (exit %s)", result.returncode)
+        return None
+
+    log.info("Node.js 20 installed to %s", node_home)
+    return node_bin, npm_bin
+
+
 def _start_wa_bridge() -> None:
     """Start the Node.js WhatsApp bridge in the background.
 
@@ -28,6 +57,12 @@ def _start_wa_bridge() -> None:
     if not os.path.exists(wa_src):
         log.info("wa-bridge not found — skipping")
         return
+
+    bins = _get_node_bin()
+    if bins is None:
+        log.error("wa-bridge skipped — could not obtain Node.js")
+        return
+    node_bin, npm_bin = bins
 
     wa_home = "/home/wa-bridge"
     os.makedirs(wa_home, exist_ok=True)
@@ -56,7 +91,7 @@ def _start_wa_bridge() -> None:
             except OSError:
                 pass
             subprocess.run(
-                ["npm", "install", "--production"],
+                [npm_bin, "install", "--production"],
                 cwd=wa_home, stdout=lf, stderr=lf, check=False,
             )
             open(installed_flag, "w").close()
@@ -78,7 +113,7 @@ def _start_wa_bridge() -> None:
     with open(log_path, "a") as lf:
         lf.write(f"[wa-bridge] Starting on port {env['PORT']}...\n")
     subprocess.Popen(
-        ["node", "index.js"],
+        [node_bin, "index.js"],
         cwd=wa_src,
         env=env,
         stdout=open(log_path, "a"),
