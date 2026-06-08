@@ -34,11 +34,13 @@ jobs:
       - name: tsc --noEmit
         run: npx tsc --noEmit
 
-  # ── 2. Build & deploy frontend to Hostinger ───────────────────
+  # ── 2. Build & deploy frontend to GitHub Pages ───────────────
   deploy-frontend:
-    name: Frontend → Hostinger
+    name: Frontend → GitHub Pages
     runs-on: ubuntu-latest
     needs: typecheck
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: frontend
@@ -60,19 +62,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to Hostinger via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          server: ${{ secrets.HOSTINGER_FTP_SERVER }}
-          username: ${{ secrets.HOSTINGER_FTP_USERNAME }}
-          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
-          local-dir: frontend/dist/
-          server-dir: /public_html/
-          dangerous-clean-slate: false
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: frontend/dist
 
   # ── 3. Deploy backend to Azure App Service ────────────────────
   deploy-backend:
