@@ -283,7 +283,7 @@ export default function Toolbar({ filters, onViewChange, onCategoryChange, onSet
   return (
     <>
       {/* ── Main navy header ── */}
-      <header style={{ background: '#1E3A8A', borderBottom: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 2px 8px rgba(15,23,42,0.2)', display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px', height: 52, flexShrink: 0 }}>
+      <header style={{ background: '#1E3A8A', borderBottom: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 2px 8px rgba(15,23,42,0.2)', display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px', height: 52, flexShrink: 0, position: 'relative' }}>
 
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginRight: 4 }}>
@@ -313,7 +313,12 @@ export default function Toolbar({ filters, onViewChange, onCategoryChange, onSet
           ))}
         </div>
 
-        <CountdownWidget />
+        <div style={{ flex: 1 }} />
+
+        {/* Centered countdown */}
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+          <CountdownWidget />
+        </div>
 
         <div style={{ flex: 1 }} />
 
