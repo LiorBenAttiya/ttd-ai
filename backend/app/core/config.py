@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     AZURE_CLIENT_SECRET: str = ""
     GRAPH_REDIRECT_URI: str = ""
 
+    # Internal service auth (wa-bridge + frontend → backend JWT)
+    INTERNAL_SERVICE_KEY: str = ""
+
     # Twilio
     TWILIO_ACCOUNT_SID: str = ""
     TWILIO_AUTH_TOKEN: str = ""

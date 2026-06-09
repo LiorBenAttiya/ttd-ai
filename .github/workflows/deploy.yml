@@ -56,7 +56,9 @@ jobs:
         run: npm ci
 
       - name: Create .env.production
-        run: echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env.production
+        run: |
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env.production
+          echo "VITE_INTERNAL_SERVICE_KEY=${{ secrets.INTERNAL_SERVICE_KEY }}" >> .env.production
 
       - name: Build
         run: npm run build
@@ -75,17 +77,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Pre-install wa-bridge packages so no npm install runs at startup.
+      # PUPPETEER_SKIP_CHROMIUM_DOWNLOAD skips the ~120 MB binary — it gets
+      # downloaded once at first startup to /home/puppeteer-cache/ (persistent).
+      - name: Pre-install wa-bridge npm packages
+        working-directory: wa-bridge
+        run: npm ci --production
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+
       # deploy-pkg layout (Oryx needs requirements.txt at root):
       #   app/             FastAPI app
       #   requirements.txt Python deps
-      #   wa-bridge/       Node.js WA bridge (started by FastAPI lifespan)
+      #   wa-bridge/       Node.js WA bridge (node_modules pre-installed above)
       - name: Prepare deployment package
         run: |
           mkdir -p deploy-pkg
           cp -r backend/. deploy-pkg/
           # Remove local Windows venv — Oryx creates /antenv on Azure
           rm -rf deploy-pkg/venv deploy-pkg/__pycache__
-          # Include wa-bridge source (node_modules installed at runtime by FastAPI)
+          # wa-bridge with pre-installed node_modules (no runtime npm install needed)
           cp -r wa-bridge deploy-pkg/wa-bridge
 
       - name: Deploy to Azure App Service

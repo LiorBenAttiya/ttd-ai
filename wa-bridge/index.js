@@ -31,15 +31,20 @@ let SELF_LID      = ''   // @lid version of self-chat — e.g. "260837...@lid"
 // ── Backend auth ──────────────────────────────────────────────
 async function getToken() {
   if (backendToken) return backendToken
+  const serviceKey = process.env.INTERNAL_SERVICE_KEY
+  const endpoint   = serviceKey
+    ? `${BACKEND}/api/v1/auth/service-token`
+    : `${BACKEND}/api/v1/auth/dev-token`
+  const body = serviceKey ? { key: serviceKey } : {}
   try {
-    console.log(`[TTD] Fetching token from ${BACKEND}/api/v1/auth/dev-token …`)
-    const res = await axios.post(`${BACKEND}/api/v1/auth/dev-token`, {}, { timeout: 5000 })
+    console.log(`[TTD] Fetching token from ${endpoint} …`)
+    const res = await axios.post(endpoint, body, { timeout: 5000 })
     backendToken = res.data.access_token
     console.log('[TTD] ✅ Backend token obtained')
     return backendToken
   } catch (e) {
     console.error(`[TTD] ❌ Could not get backend token: ${e.message}`)
-    console.error('[TTD]    Is the backend running at', BACKEND, '?')
+    if (!serviceKey) console.error('[TTD]    Set INTERNAL_SERVICE_KEY in Azure App Settings')
     return null
   }
 }

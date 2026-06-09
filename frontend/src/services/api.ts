@@ -8,8 +8,16 @@ let _token: string | null = null
 
 export async function ensureToken(): Promise<string> {
   if (_token) return _token
-  const res = await axios.post(`${BASE}/api/v1/auth/dev-token`)
-  _token = res.data.access_token
+  const serviceKey = import.meta.env.VITE_INTERNAL_SERVICE_KEY
+  if (serviceKey) {
+    // Production: use service-token (key baked in at build time via GitHub secret)
+    const res = await axios.post(`${BASE}/api/v1/auth/service-token`, { key: serviceKey })
+    _token = res.data.access_token
+  } else {
+    // Local dev fallback
+    const res = await axios.post(`${BASE}/api/v1/auth/dev-token`)
+    _token = res.data.access_token
+  }
   return _token!
 }
 
