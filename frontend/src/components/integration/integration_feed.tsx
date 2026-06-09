@@ -296,7 +296,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
     <div className="flex flex-col h-full overflow-hidden">
       {/* Tab bar */}
       <div className="flex items-center flex-shrink-0 px-3 pt-1"
-           style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(8,11,18,0.6)' }}>
+           style={{ borderBottom: '1px solid #E2E8F0', background: '#F8FAFC' }}>
         {tabs.map(({ key, label, badge, isAdd }) => {
           const isEmailTab = emailAccounts.some(a => a.email === key)
           const isRenaming = renamingTab === key
@@ -312,8 +312,8 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                     if (e.key === 'Enter') handleRenameTab(key, renameValue)
                     if (e.key === 'Escape') setRenamingTab(null)
                   }}
-                  style={{ fontSize: '12px', width: 80, background: 'rgba(255,255,255,0.08)',
-                           border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4,
+                  style={{ fontSize: '12px', width: 80, background: '#E2E8F0',
+                           border: '1px solid #CBD5E1', borderRadius: 4,
                            color: '#F1F5F9', padding: '2px 6px', outline: 'none' }}
                 />
               ) : (
@@ -342,8 +342,8 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
       </div>
 
       {/* ── Big Search Bar ── */}
-      <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    background: 'rgba(6,9,18,0.7)', position: 'relative' }}>
+      <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid #E2E8F0',
+                    background: '#F8FAFC', position: 'relative' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <span style={{ position: 'absolute', left: 14, fontSize: 15, color: '#475569', pointerEvents: 'none' }}>🔍</span>
           <input
@@ -352,15 +352,15 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
             placeholder="Search tasks, contacts, companies…"
             style={{
               width: '100%', padding: '11px 14px 11px 40px',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(30,58,138,0.04)',
+              border: '1px solid #E2E8F0',
               borderRadius: 12, outline: 'none',
-              fontSize: 13, color: '#CBD5E1',
+              fontSize: 13, color: '#1E293B',
               transition: 'border-color 200ms ease',
               boxSizing: 'border-box',
             }}
             onFocus={e  => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
-            onBlur={e   => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+            onBlur={e   => (e.target.style.borderColor = '#E2E8F0')}
           />
           {query && (
             <button onClick={() => setQuery('')}
@@ -372,12 +372,12 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
         {/* Search results dropdown */}
         {query.trim() && (
           <div style={{ marginTop: 6, borderRadius: 12, overflow: 'hidden',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        background: 'rgba(6,10,22,0.99)', maxHeight: 320, overflowY: 'auto',
-                        boxShadow: '0 16px 48px rgba(0,0,0,0.7)' }}>
+                        border: '1px solid #E2E8F0',
+                        background: '#ffffff', maxHeight: 320, overflowY: 'auto',
+                        boxShadow: '0 16px 48px rgba(15,23,42,0.08)' }}>
 
             {/* Header */}
-            <div style={{ padding: '8px 14px 6px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+            <div style={{ padding: '8px 14px 6px', borderBottom: '1px solid #E2E8F0',
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 10, color: '#334155', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {searching ? 'Searching…' : `${results.length} result${results.length !== 1 ? 's' : ''} for "${query}"`}
@@ -403,7 +403,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                               padding: '10px 14px',
                               borderBottom: i < results.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none',
                               cursor: 'pointer', transition: 'background 120ms ease' }}
-                     onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+                     onMouseEnter={e => (e.currentTarget.style.background = 'rgba(30,58,138,0.04)')}
                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
 
                   {/* Type icon */}
@@ -412,7 +412,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                   {/* Content */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 13, color: '#CBD5E1', fontWeight: 600,
+                      <span style={{ fontSize: 13, color: '#1E293B', fontWeight: 600,
                                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
                         {r.title}
                       </span>
@@ -456,8 +456,8 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
             <div style={{
               display: 'flex', alignItems: 'center', gap: 8,
               padding: '6px 14px', flexShrink: 0,
-              background: 'rgba(4,7,18,0.7)',
-              borderBottom: '1px solid rgba(255,255,255,0.04)',
+              background: '#ffffff',
+              borderBottom: '1px solid rgba(30,58,138,0.04)',
               fontSize: 11, color: '#334155',
             }}>
               <div style={{
@@ -578,8 +578,8 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
             <div style={{
               display: 'flex', alignItems: 'center', gap: 8,
               padding: '6px 14px', flexShrink: 0,
-              background: 'rgba(4,7,18,0.7)',
-              borderBottom: '1px solid rgba(255,255,255,0.04)',
+              background: '#ffffff',
+              borderBottom: '1px solid rgba(30,58,138,0.04)',
               fontSize: 11,
             }}>
               <div style={{
@@ -634,7 +634,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                          onDoubleClick={() => handleOpenEmail(email)}
                          title="Double-click to read"
                          style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer',
-                                  padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                                  padding: '12px 14px', borderBottom: '1px solid rgba(30,58,138,0.04)' }}>
                       {/* Avatar */}
                       <div style={{
                         width: 36, height: 36, borderRadius: 10, flexShrink: 0,
@@ -702,10 +702,10 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
         {tab === 'approvals' && (
           <div className="flex flex-col h-full overflow-hidden">
             {/* Header bar */}
-            <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+            <div style={{ padding: '10px 14px', borderBottom: '1px solid #E2E8F0',
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.05em' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>
                   🤖 AI INBOX
                 </span>
                 {aiAnalyzedAt && aiSources && (
@@ -849,7 +849,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
           onClick={() => { setEmailReader(null); setEmailReaderLoading(false) }}
           style={{
             position: 'fixed', inset: 0, zIndex: 1000,
-            background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
+            background: 'rgba(15,23,42,0.08)', backdropFilter: 'blur(4px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
           <div
@@ -857,14 +857,14 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
             style={{
               width: '720px', maxWidth: '95vw', maxHeight: '85vh',
               background: '#0B0F1C', borderRadius: 16,
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 32px 80px rgba(0,0,0,0.8)',
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 32px 80px rgba(15,23,42,0.08)',
               display: 'flex', flexDirection: 'column', overflow: 'hidden',
             }}>
 
             {/* Header */}
             <div style={{
-              padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+              padding: '16px 20px', borderBottom: '1px solid rgba(30,58,138,0.06)',
               display: 'flex', alignItems: 'flex-start', gap: 12,
             }}>
               {emailReaderLoading ? (
@@ -891,7 +891,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
               ) : null}
               <button
                 onClick={() => { setEmailReader(null); setEmailReaderLoading(false) }}
-                style={{ flexShrink: 0, background: 'rgba(255,255,255,0.06)', border: 'none',
+                style={{ flexShrink: 0, background: 'rgba(30,58,138,0.06)', border: 'none',
                          borderRadius: 8, width: 28, height: 28, cursor: 'pointer',
                          color: '#64748B', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {'✕'}
@@ -913,7 +913,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                     title="Email body"
                   />
                 ) : (
-                  <pre style={{ padding: '20px', fontSize: 13, color: '#CBD5E1',
+                  <pre style={{ padding: '20px', fontSize: 13, color: '#1E293B',
                                 whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0 }}>
                     {emailReader.body_text || '(No content)'}
                   </pre>
@@ -923,7 +923,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
 
             {/* Footer */}
             {emailReader && (
-              <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.06)',
+              <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(30,58,138,0.06)',
                             display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                 <button
                   onClick={() => {
@@ -956,7 +956,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
           onClick={() => setNewTaskModal(null)}
           style={{
             position: 'fixed', inset: 0, zIndex: 1100,
-            background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
+            background: 'rgba(15,23,42,0.08)', backdropFilter: 'blur(4px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
           <div
@@ -964,17 +964,17 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
             style={{
               width: '480px', maxWidth: '95vw',
               background: '#0B0F1C', borderRadius: 16,
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 32px 80px rgba(0,0,0,0.8)',
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 32px 80px rgba(15,23,42,0.08)',
               overflow: 'hidden',
             }}>
 
             {/* Header */}
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(30,58,138,0.06)',
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 15, fontWeight: 700, color: '#F1F5F9' }}>New Task</span>
               <button onClick={() => setNewTaskModal(null)}
-                      style={{ background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: 8,
+                      style={{ background: 'rgba(30,58,138,0.06)', border: 'none', borderRadius: 8,
                                width: 28, height: 28, cursor: 'pointer', color: '#64748B', fontSize: 16,
                                display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {'✕'}
@@ -987,7 +987,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
               {/* Context (read-only) */}
               <div style={{ fontSize: 11, color: '#475569', padding: '8px 12px',
                             background: 'rgba(255,255,255,0.03)', borderRadius: 8,
-                            border: '1px solid rgba(255,255,255,0.05)' }}>
+                            border: '1px solid #E2E8F0' }}>
                 {newTaskModal.context}
               </div>
 
@@ -1002,12 +1002,12 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                   rows={3}
                   style={{
                     width: '100%', padding: '10px 12px', resize: 'vertical',
-                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: 10, outline: 'none', fontSize: 13, color: '#CBD5E1',
+                    background: 'rgba(30,58,138,0.04)', border: '1px solid #E2E8F0',
+                    borderRadius: 10, outline: 'none', fontSize: 13, color: '#1E293B',
                     fontFamily: 'inherit', boxSizing: 'border-box',
                   }}
                   onFocus={e  => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
-                  onBlur={e   => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                  onBlur={e   => (e.target.style.borderColor = '#E2E8F0')}
                 />
               </div>
 
@@ -1033,7 +1033,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                           color: newTaskModal.priority === p.val ? p.color : '#475569',
                           border: newTaskModal.priority === p.val
                             ? `1px solid ${p.color}44`
-                            : '1px solid rgba(255,255,255,0.06)',
+                            : '1px solid rgba(30,58,138,0.06)',
                         }}>
                         {p.label}
                       </button>
@@ -1051,8 +1051,8 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                     value={newTaskModal.due_date}
                     onChange={e => setNewTaskModal(prev => prev ? { ...prev, due_date: e.target.value } : null)}
                     style={{
-                      padding: '7px 10px', borderRadius: 10, fontSize: 12, color: '#CBD5E1',
-                      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                      padding: '7px 10px', borderRadius: 10, fontSize: 12, color: '#1E293B',
+                      background: 'rgba(30,58,138,0.04)', border: '1px solid #E2E8F0',
                       outline: 'none', width: '100%', boxSizing: 'border-box',
                       colorScheme: 'dark',
                     }}
@@ -1081,13 +1081,13 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
       {/* WA compose */}
       {tab === 'whatsapp' && (
         <div className="flex items-center gap-2.5 px-4 py-2.5 flex-shrink-0"
-             style={{ borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(8,11,18,0.7)' }}>
+             style={{ borderTop: '1px solid #E2E8F0', background: 'rgba(8,11,18,0.7)' }}>
           <input value={input} onChange={e => setInput(e.target.value)}
                  placeholder="Reply via WhatsApp…"
                  className="flex-1 input-base px-4 py-2"
                  style={{ fontSize: '13px' }}
                  onFocus={e  => (e.target.style.borderColor = 'rgba(37,211,102,0.45)')}
-                 onBlur={e   => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+                 onBlur={e   => (e.target.style.borderColor = '#E2E8F0')} />
           <button className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
                   style={{ background: 'rgba(37,211,102,0.15)', color: '#25D366',
                            border: '1px solid rgba(37,211,102,0.25)', fontSize: '14px' }}

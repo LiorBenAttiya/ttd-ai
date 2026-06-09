@@ -174,7 +174,7 @@ export default function LeftPanel({ filters, selectedTaskId, onTaskSelect, onNew
   const urgent    = stats?.overdue   ?? 0
 
   return (
-    <aside style={{ width: 210, flexShrink: 0, borderRight: '1px solid #E2E8F0', background: '#F1F5F9', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <aside style={{ width: 270, flexShrink: 0, borderRight: '1px solid #E2E8F0', background: '#F1F5F9', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
       {/* ── Profile card ── */}
       <div style={{ background: '#1E3A8A', padding: '12px 12px 10px', flexShrink: 0 }}>
