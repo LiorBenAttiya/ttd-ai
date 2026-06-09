@@ -389,8 +389,8 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                 background: waStatus === 'ready' ? '#25D366' : waStatus === 'connecting' ? '#FBBF24' : '#F87171',
                 boxShadow: waStatus === 'ready' ? '0 0 6px #25D366' : undefined,
               }} />
-              <span style={{ color: waStatus === 'ready' ? '#25D366' : waStatus === 'connecting' ? '#FBBF24' : '#F87171', fontWeight: 600 }}>
-                {waStatus === 'ready' ? 'Connected — Saved Messages' : waStatus === 'connecting' ? 'Connecting… scan QR in terminal' : 'WA Bridge offline'}
+              <span style={{ color: waStatus === 'ready' ? '#25D366' : waStatus === 'connecting' ? '#FBBF24' : '#94A3B8', fontWeight: waStatus === 'ready' ? 600 : 400 }}>
+                {waStatus === 'ready' ? 'Connected — Saved Messages' : waStatus === 'connecting' ? 'Connecting… scan QR in terminal' : 'Bridge offline'}
               </span>
               {waStatus === 'ready' && (
                 <span style={{ marginLeft: 'auto' }}>{waMessages.length} messages</span>
@@ -404,12 +404,11 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
               </div>
             )}
 
-            {/* Offline banner — subtle, non-blocking */}
+            {/* Offline banner — minimal chip only */}
             {waStatus === 'offline' && (
-              <div style={{ padding: '5px 14px', background: '#FFF7ED', borderBottom: '1px solid #FED7AA', fontSize: 11, color: '#92400E', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#F97316', display: 'inline-block', flexShrink: 0 }} />
-                Bridge offline — showing cached data  · 
-                <code style={{ fontSize: 10, color: '#1D4ED8', background: '#EFF6FF', padding: '1px 6px', borderRadius: 4 }}>cd wa-bridge && node index.js</code>
+              <div style={{ padding: '3px 14px', background: '#FFF7ED', borderBottom: '1px solid #FED7AA', fontSize: 10, color: '#B45309', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#F97316', display: 'inline-block', flexShrink: 0 }} />
+                Showing cached data — WhatsApp bridge offline
               </div>
             )}
 
