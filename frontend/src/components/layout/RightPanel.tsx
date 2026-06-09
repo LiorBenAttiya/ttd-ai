@@ -69,7 +69,7 @@ export default function RightPanel({ filters: _, selectedTaskId, onTaskSelect }:
   ]
 
   return (
-    <aside style={{ width: 300, flexShrink: 0, background: '#F1F5F9', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <aside style={{ flex: 28, minWidth: 260, maxWidth: 380, flexShrink: 0, background: '#F1F5F9', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
       {/* ── Daily Summary card ── */}
       <div style={{ background: '#1E3A8A', padding: '10px 12px 8px', flexShrink: 0 }}>
@@ -199,6 +199,10 @@ export default function RightPanel({ filters: _, selectedTaskId, onTaskSelect }:
             </button>
           ))}
         </div>
+      </div>
+    </aside>
+  )
+}
       </div>
     </aside>
   )

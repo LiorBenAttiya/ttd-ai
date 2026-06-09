@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import type { FilterState } from '@/types'
 import LoginPage         from '@/pages/LoginPage'
 import Toolbar           from '@/components/layout/Toolbar'
+import NavRail           from '@/components/layout/NavRail'
 import LeftPanel         from '@/components/layout/LeftPanel'
 import CentrePanel       from '@/components/layout/CentrePanel'
 import RightPanel        from '@/components/layout/RightPanel'
@@ -48,7 +49,6 @@ function Dashboard() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden" style={{ background: '#F8FAFC' }}>
-      {/* Navy header + status bar */}
       <Toolbar
         filters={filters}
         onViewChange={v  => updateFilter('view', v)}
@@ -57,18 +57,18 @@ function Dashboard() {
         onSetup={() => setShowSetup(true)}
       />
 
-      {/* 3-column body */}
+      {/* 4-panel body: NavRail + Feed + Kanban + Summary */}
       <div className="flex flex-1 overflow-hidden min-h-0">
+        <NavRail onSetup={() => setShowSetup(true)} />
+        <CentrePanel selectedTaskId={selectedTaskId} />
         <LeftPanel
           filters={filters}
           selectedTaskId={selectedTaskId}
           onTaskSelect={setTaskId}
           onNewTask={() => setShowNewTask(true)}
-          onSetup={() => setShowSetup(true)}
           onImport={() => setShowImport(true)}
         />
-        <CentrePanel selectedTaskId={selectedTaskId} />
-        <RightPanel  filters={filters} selectedTaskId={selectedTaskId} onTaskSelect={setTaskId} />
+        <RightPanel filters={filters} selectedTaskId={selectedTaskId} onTaskSelect={setTaskId} />
       </div>
 
       {showNewTask && <NewTaskModal     onClose={() => setShowNewTask(false)} />}

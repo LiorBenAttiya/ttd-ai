@@ -163,56 +163,27 @@ function WorldClocks() {
   )
 }
 
-export default function LeftPanel({ filters, selectedTaskId, onTaskSelect, onNewTask, onSetup, onImport }: Props) {
+export default function LeftPanel({ filters, selectedTaskId, onTaskSelect, onNewTask, onImport }: Props) {
   const { data: liveData, isLoading, isError, refetch } = useKanban(filters)
-  const { data: stats } = useStats()
   const kanban: KanbanData = (liveData && !isError) ? liveData : { todo: [], in_progress: [], done: [], counts: { todo: 0, in_progress: 0, done: 0 } }
   const [showImport, setShowImport] = useState(false)
 
-  const done      = stats?.completed ?? 0
-  const todo      = stats?.pending   ?? 0
-  const urgent    = stats?.overdue   ?? 0
-
   return (
-    <aside style={{ width: 270, flexShrink: 0, borderRight: '1px solid #E2E8F0', background: '#F1F5F9', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <section style={{ flex: 40, minWidth: 0, borderRight: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-      {/* ── Profile card ── */}
-      <div style={{ background: '#1E3A8A', padding: '12px 12px 10px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-          <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#3B82F6', border: '2px solid rgba(255,255,255,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#fff', flexShrink: 0 }}>LB</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Lior Ben-Attiya</div>
-            <div style={{ fontSize: 9, color: '#93C5FD', marginTop: 1 }}>Operations Manager</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
-              <span style={{ fontSize: 9, color: '#BAE6FD' }}>Online</span>
-            </div>
-          </div>
-          {onSetup && (
-            <button onClick={onSetup} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
-              <i className="ti ti-settings-2" style={{ fontSize: 15, color: '#60A5FA' }} />
-            </button>
-          )}
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4, marginTop: 9 }}>
-          {[{ n: done, lbl: 'done', c: '#fff' }, { n: todo, lbl: 'to do', c: '#60A5FA' }, { n: urgent, lbl: 'urgent', c: '#FCA5A5' }].map(({ n, lbl, c }) => (
-            <div key={lbl} style={{ background: 'rgba(255,255,255,.1)', borderRadius: 5, padding: '4px 5px', textAlign: 'center' }}>
-              <div style={{ fontSize: 15, color: c, fontWeight: 700, lineHeight: 1 }}>{n}</div>
-              <div style={{ fontSize: 8, color: '#93C5FD' }}>{lbl}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── New Task button ── */}
-      <div style={{ padding: '9px 9px 0', flexShrink: 0 }}>
+      {/* ── Toolbar row ── */}
+      <div style={{ padding: '8px 10px', borderBottom: '1px solid #E2E8F0', background: '#fff', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
         <button onClick={onNewTask}
-                style={{ width: '100%', background: '#3B82F6', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, boxShadow: '0 1px 4px rgba(59,130,246,0.3)' }}>
-          <i className="ti ti-plus" style={{ fontSize: 14 }} /> New Task
+                style={{ background: '#3B82F6', color: '#fff', border: 'none', borderRadius: 7, padding: '6px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap', boxShadow: '0 1px 4px rgba(59,130,246,0.25)' }}>
+          <i className="ti ti-plus" style={{ fontSize: 13 }} /> New Task
         </button>
+        {onImport && (
+          <button onClick={() => setShowImport(true)}
+                  style={{ background: '#F1F5F9', color: '#475569', border: '1px solid #E2E8F0', borderRadius: 7, padding: '6px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <i className="ti ti-table-import" style={{ fontSize: 12, marginRight: 3 }} /> Import
+          </button>
+        )}
       </div>
-
-      <div style={{ height: 1, background: '#E2E8F0', margin: '9px 9px 0', flexShrink: 0 }} />
 
       {/* ── World Clocks ── */}
       <WorldClocks />
@@ -231,12 +202,12 @@ export default function LeftPanel({ filters, selectedTaskId, onTaskSelect, onNew
             onTaskSelect={onTaskSelect}
           />
         ) : (
-          <div style={{ flex: 1, overflowY: 'auto', padding: '8px 9px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 5 }}>
             {[...(kanban.todo ?? []), ...(kanban.in_progress ?? [])]
               .sort((a,b) => (!a.due_date ? 1 : !b.due_date ? -1 : a.due_date.localeCompare(b.due_date)))
               .map(task => (
                 <button key={task.id} onClick={() => onTaskSelect(task.id)}
-                        className="text-left glass-card" style={{ padding: '8px 10px', borderRadius: 8, cursor: 'pointer' }}>
+                        className="text-left" style={{ padding: '8px 10px', borderRadius: 8, cursor: 'pointer', background: '#fff', border: '1px solid #E2E8F0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                     <div className={`priority-dot priority-${task.priority}`} />
                     <span style={{ flex: 1, fontSize: 12, color: '#1E293B', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.description}</span>
@@ -250,30 +221,10 @@ export default function LeftPanel({ filters, selectedTaskId, onTaskSelect, onNew
         )}
       </div>
 
-      {/* ── Footer nav — Tabler icons ── */}
-      <div style={{ borderTop: '1px solid #E2E8F0', padding: '8px 9px', background: '#EEF2F8', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
-        {[
-          { icon: 'ti-adjustments-horizontal', label: 'Settings', action: onSetup },
-          { icon: 'ti-chart-dots-3',            label: 'Reports',  action: undefined },
-          { icon: 'ti-address-book',            label: 'Contacts', action: undefined },
-          { icon: 'ti-lifebuoy',               label: 'Help',     action: undefined },
-        ].map(({ icon, label, action }) => (
-          <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <button className="icon-nav-btn" onClick={action ?? undefined} title={label}>
-              <i className={`ti ${icon}`} />
-            </button>
-            <span style={{ fontSize: 8, color: '#64748B' }}>{label}</span>
-          </div>
-        ))}
-        <div style={{ marginLeft: 'auto', fontSize: 8, color: '#94A3B8', textAlign: 'right', lineHeight: 1.5 }}>
-          v1.0<br />TTD AI
-        </div>
-      </div>
-
       {/* ── Excel import modal ── */}
-      {(showImport) && (
+      {showImport && (
         <ExcelImportModal onClose={() => setShowImport(false)} onImported={() => { refetch(); setShowImport(false) }} />
       )}
-    </aside>
+    </section>
   )
 }

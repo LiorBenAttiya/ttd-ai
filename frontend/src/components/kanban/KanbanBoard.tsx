@@ -20,12 +20,12 @@ function DoneCard({ task }: { task: Task }) {
   return (
     <div style={{
       padding: '8px 12px', borderRadius: 10,
-      background: 'rgba(52,211,153,0.04)',
-      border: '1px solid rgba(52,211,153,0.1)',
-      opacity: 0.65,
+      background: '#F0FDF4',
+      border: '1px solid #BBF7D0',
+      opacity: 0.8,
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-        <span style={{ fontSize: 11, color: '#34D399', flexShrink: 0, marginTop: 1 }}>&#10003;</span>
+        <span style={{ fontSize: 11, color: '#16a34a', flexShrink: 0, marginTop: 1 }}>&#10003;</span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{
             fontSize: 12, color: '#64748B', fontWeight: 500,
@@ -50,27 +50,23 @@ function ColHeader({ title, count, color, bg, dropHint }: {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 8,
-      padding: '8px 10px', flexShrink: 0,
-      background: 'rgba(4,7,18,0.8)',
-      borderBottom: '1px solid rgba(255,255,255,0.05)',
+      padding: '7px 10px', flexShrink: 0,
+      background: bg,
+      borderBottom: `1px solid ${color}30`,
     }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        padding: '3px 10px', borderRadius: 20,
-        background: bg, border: `1px solid ${color}30`,
-      }}>
-        <div style={{ width: 6, height: 6, borderRadius: '50%', background: color, boxShadow: `0 0 6px ${color}` }} />
-        <span style={{ fontSize: 10, fontWeight: 800, color, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
+        <span style={{ fontSize: 11, fontWeight: 700, color, letterSpacing: '0.04em' }}>
           {title}
         </span>
       </div>
       <span style={{
         marginLeft: 'auto', fontSize: 11, fontWeight: 700,
-        color: '#334155', background: 'rgba(255,255,255,0.05)',
-        padding: '2px 8px', borderRadius: 10,
+        color, background: `${color}20`,
+        padding: '1px 8px', borderRadius: 10,
       }}>{count}</span>
       {dropHint && (
-        <span style={{ fontSize: 9, color: '#334155', fontStyle: 'italic' }}>drag here</span>
+        <span style={{ fontSize: 9, color: '#94A3B8', fontStyle: 'italic' }}>drag here</span>
       )}
     </div>
   )
@@ -149,9 +145,9 @@ export default function KanbanBoard({ todo, inProgress, done, selectedTaskId, on
   function colWrap(col: string): React.CSSProperties {
     const active = overCol === col
     return {
-      borderRadius: 12, overflow: 'hidden',
-      border: active ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.04)',
-      background: active ? 'rgba(99,102,241,0.06)' : 'rgba(4,7,18,0.5)',
+      borderRadius: 10, overflow: 'hidden',
+      border: active ? '1px solid #3B82F6' : '1px solid #E2E8F0',
+      background: active ? 'rgba(59,130,246,0.04)' : '#fff',
       display: 'flex', flexDirection: 'column',
       transition: 'border 0.15s, background 0.15s',
       flexShrink: 0,
@@ -170,25 +166,17 @@ export default function KanbanBoard({ todo, inProgress, done, selectedTaskId, on
       }}>
 
         {/* ── TO DO ── */}
-        <div style={{ ...colWrap('pending'), height: COL_H }}
+        <div style={{ ...colWrap('pending'), flex: 1, minHeight: 80 }}
              onDragOver={e => onDragOver(e, 'pending')}
              onDragLeave={onDragLeave}
              onDrop={e => onDrop(e, 'pending')}>
-          <ColHeader title="To Do" count={todo.length} color="#3B82F6" bg="rgba(59,130,246,0.08)" dropHint={drag?.fromStatus === 'in_progress'} />
+          <ColHeader title="To Do" count={todo.length} color="#DC2626" bg="#FEF2F2" dropHint={drag?.fromStatus === 'in_progress'} />
           <div style={{ overflowY: 'auto', flex: 1, padding: '6px 8px', display: 'flex', flexDirection: 'column', gap: 5 }}>
             {todo.length === 0 ? (
-              <p style={{ textAlign: 'center', padding: '28px 0', color: '#1E293B', fontSize: 12 }}>
-                Backlog is empty
-              </p>
+              <p style={{ textAlign: 'center', padding: '16px 0', color: '#94A3B8', fontSize: 12 }}>Backlog is empty</p>
             ) : todo.map(task => (
-              <div key={task.id}
-                   draggable
-                   onDragStart={() => onDragStart(task.id, 'pending')}
-                   style={{
-                     cursor: 'grab',
-                     opacity: drag?.taskId === task.id ? 0.35 : 1,
-                     transition: 'opacity 0.15s',
-                   }}>
+              <div key={task.id} draggable onDragStart={() => onDragStart(task.id, 'pending')}
+                   style={{ cursor: 'grab', opacity: drag?.taskId === task.id ? 0.35 : 1, transition: 'opacity 0.15s' }}>
                 <TaskCard task={task} selected={selectedTaskId === task.id} onClick={() => onTaskSelect(task.id)} />
               </div>
             ))}
@@ -196,42 +184,32 @@ export default function KanbanBoard({ todo, inProgress, done, selectedTaskId, on
         </div>
 
         {/* ── IN PROGRESS ── */}
-        <div style={{ ...colWrap('in_progress'), height: COL_H }}
+        <div style={{ ...colWrap('in_progress'), flex: 1, minHeight: 80 }}
              onDragOver={e => onDragOver(e, 'in_progress')}
              onDragLeave={onDragLeave}
              onDrop={e => onDrop(e, 'in_progress')}>
-          <ColHeader title="In Progress" count={inProgress.length} color="#FBBF24" bg="rgba(251,191,36,0.08)" dropHint={drag?.fromStatus === 'pending'} />
+          <ColHeader title="In Progress" count={inProgress.length} color="#D97706" bg="#FFFBEB" dropHint={drag?.fromStatus === 'pending'} />
           <div style={{ overflowY: 'auto', flex: 1, padding: '6px 8px', display: 'flex', flexDirection: 'column', gap: 5 }}>
             {inProgress.length === 0 ? (
-              <p style={{ textAlign: 'center', padding: '28px 0', color: '#1E293B', fontSize: 12 }}>
-                Drag a task from To Do to start working on it
-              </p>
+              <p style={{ textAlign: 'center', padding: '16px 0', color: '#94A3B8', fontSize: 12 }}>Drag a task here to start</p>
             ) : inProgress.map(task => (
-              <div key={task.id}
-                   draggable
-                   onDragStart={() => onDragStart(task.id, 'in_progress')}
-                   style={{
-                     cursor: 'grab',
-                     opacity: drag?.taskId === task.id ? 0.35 : 1,
-                     transition: 'opacity 0.15s',
-                   }}>
+              <div key={task.id} draggable onDragStart={() => onDragStart(task.id, 'in_progress')}
+                   style={{ cursor: 'grab', opacity: drag?.taskId === task.id ? 0.35 : 1, transition: 'opacity 0.15s' }}>
                 <TaskCard task={task} selected={selectedTaskId === task.id} onClick={() => onTaskSelect(task.id)} />
               </div>
             ))}
           </div>
         </div>
 
-        {/* ── DONE (last 10) ── */}
-        <div style={{ ...colWrap('completed'), flex: 1, minHeight: 100 }}
+        {/* ── DONE ── */}
+        <div style={{ ...colWrap('completed'), flex: 1, minHeight: 80 }}
              onDragOver={e => onDragOver(e, 'completed')}
              onDragLeave={onDragLeave}
              onDrop={e => onDrop(e, 'completed')}>
-          <ColHeader title="Done" count={Math.min(done.length, 10)} color="#34D399" bg="rgba(52,211,153,0.07)" dropHint={drag?.fromStatus === 'in_progress'} />
+          <ColHeader title="Done" count={Math.min(done.length, 10)} color="#16a34a" bg="#F0FDF4" dropHint={drag?.fromStatus === 'in_progress'} />
           <div style={{ overflowY: 'auto', flex: 1, padding: '6px 8px', display: 'flex', flexDirection: 'column', gap: 5 }}>
             {done.length === 0 ? (
-              <p style={{ textAlign: 'center', padding: '28px 0', color: '#1E293B', fontSize: 12 }}>
-                No completed tasks yet
-              </p>
+              <p style={{ textAlign: 'center', padding: '16px 0', color: '#94A3B8', fontSize: 12 }}>No completed tasks yet</p>
             ) : done.slice(0, 10).map(task => (
               <DoneCard key={task.id} task={task} />
             ))}
