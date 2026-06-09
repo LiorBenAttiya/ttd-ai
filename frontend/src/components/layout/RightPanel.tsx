@@ -203,7 +203,3 @@ export default function RightPanel({ filters: _, selectedTaskId, onTaskSelect }:
     </aside>
   )
 }
-      </div>
-    </aside>
-  )
-}
