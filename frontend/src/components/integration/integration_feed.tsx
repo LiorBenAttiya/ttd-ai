@@ -15,6 +15,23 @@ const TYPE_COLOR: Record<string, string> = {
   message: '#25D366', mailbox: '#F59E0B',
 }
 
+/* ── Mock data shown when backend is offline ── */
+const NOW = Math.floor(Date.now() / 1000)
+const MOCK_WA: WAMessageRaw[] = [
+  { id: 'mock1', body: 'Hi Lior, the Q2 finance report is ready for your review. I sent it to your email as well. Let me know if you need any adjustments before Monday.', type: 'chat', timestamp: NOW - 420, fromMe: true, hasMedia: false, duration: null },
+  { id: 'mock2', body: 'MEP OSM project update: Site inspection completed ✅ Contractor confirmed materials delivery for Thursday. Budget still on track.', type: 'chat', timestamp: NOW - 3600, fromMe: true, hasMedia: false, duration: null },
+  { id: 'mock3', body: 'Follow up with Bank of America re: credit line extension — they need the updated financial statements by end of week.', type: 'chat', timestamp: NOW - 7200, fromMe: true, hasMedia: false, duration: null },
+  { id: 'mock4', body: 'Call Dani @ Merrill Edge tomorrow 14:00 about portfolio rebalancing. Confirm appointment.', type: 'chat', timestamp: NOW - 18000, fromMe: true, hasMedia: false, duration: null },
+  { id: 'mock5', body: 'SAP B1 sync issue resolved — IT confirmed the new API token is active. Re-test the inventory module this week.', type: 'chat', timestamp: NOW - 86400, fromMe: true, hasMedia: false, duration: null },
+]
+const MOCK_EMAILS: EmailMessage[] = [
+  { id: 'me1', subject: 'Q2 Financial Report — Action Required', sender_name: 'CFO Office', sender_email: 'cfo@lbatech.com', preview: 'Please review the attached Q2 report and provide sign-off by Monday.', received_at: new Date(Date.now() - 1800000).toISOString(), is_read: false, is_flagged: true, has_attachments: true, account: 'lior@lbatech.com' },
+  { id: 'me2', subject: 'MEP Project — Site Inspection Summary', sender_name: 'Yossi Levi', sender_email: 'yossi@mepsltn.com', preview: 'Site inspection completed. Contractor confirmed materials delivery for Thursday.', received_at: new Date(Date.now() - 7200000).toISOString(), is_read: false, is_flagged: false, has_attachments: false, account: 'lior@lbatech.com' },
+  { id: 'me3', subject: 'Bank of America — Credit Line Review', sender_name: 'B of A Business', sender_email: 'business@bofa.com', preview: 'Your credit line review is scheduled. Please submit updated financials.', received_at: new Date(Date.now() - 14400000).toISOString(), is_read: true, is_flagged: true, has_attachments: false, account: 'lior@lbatech.com' },
+  { id: 'me4', subject: 'SAP B1 Integration — Token Renewed', sender_name: 'IT Support', sender_email: 'it@lbatech.com', preview: 'The SAP B1 API token has been renewed. Please re-test the inventory module.', received_at: new Date(Date.now() - 28800000).toISOString(), is_read: true, is_flagged: false, has_attachments: false, account: 'lior@lbatech.com' },
+  { id: 'me5', subject: 'Monday.com — Weekly Sprint Summary', sender_name: 'monday.com', sender_email: 'noreply@monday.com', preview: 'Your weekly sprint summary is ready. 3 items completed, 2 in progress.', received_at: new Date(Date.now() - 86400000).toISOString(), is_read: true, is_flagged: false, has_attachments: false, account: 'lior@lbatech.com' },
+]
+
 
 export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
   const [tab, setTab]           = useState<Tab>('whatsapp')
@@ -67,9 +84,13 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
           setWaStatus('connecting')
         } else {
           setWaStatus('offline')
+          setWaMessages(prev => prev.length === 0 ? MOCK_WA : prev)
         }
       } catch {
-        if (!cancelled) setWaStatus('offline')
+        if (!cancelled) {
+          setWaStatus('offline')
+          setWaMessages(prev => prev.length === 0 ? MOCK_WA : prev)
+        }
       }
     }
     load()
@@ -285,10 +306,16 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
     badge: (emailData[a.email]?.messages ?? []).filter(e => !e.is_read).length || undefined,
   }))
 
+  const DEMO_MAIL_KEY = '__demo_mail__'
+  const demoMailTabs: typeof emailTabs = emailAccounts.length === 0
+    ? [{ key: DEMO_MAIL_KEY, label: 'Outlook', badge: MOCK_EMAILS.filter(e => !e.is_read).length || undefined }]
+    : []
+
   const tabs: { key: Tab; label: string; badge?: number; isAdd?: boolean }[] = [
     { key: 'whatsapp', label: 'WhatsApp' },
+    ...demoMailTabs,
     ...emailTabs,
-    { key: '__add__', label: '+ Mail', isAdd: true },
+    { key: '__add__', label: emailAccounts.length === 0 ? '⚡ Connect Mail' : '+ Mail', isAdd: true },
     { key: 'approvals', label: 'AI Inbox' },
   ]
 
@@ -473,38 +500,24 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
               )}
             </div>
 
-            {/* Offline state */}
-            {waStatus === 'offline' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 }}>
-                <span style={{ fontSize: 32 }}>{'📵'}</span>
-                <p style={{ fontSize: 13, color: '#475569', textAlign: 'center', lineHeight: 1.6 }}>
-                  WhatsApp bridge is not running.<br />
-                  <span style={{ fontSize: 11, color: '#334155' }}>Open a terminal and run:</span>
-                </p>
-                <code style={{
-                  fontSize: 11, color: '#93C5FD', background: 'rgba(59,130,246,0.08)',
-                  padding: '8px 14px', borderRadius: 8, display: 'block',
-                }}>
-                  cd wa-bridge && node index.js
-                </code>
-              </div>
-            )}
-
             {/* Connecting state */}
             {waStatus === 'connecting' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 }}>
-                <span style={{ fontSize: 32 }}>{'📱'}</span>
-                <p style={{ fontSize: 13, color: '#FBBF24', textAlign: 'center', lineHeight: 1.6 }}>
-                  Scan the QR code in your terminal to link WhatsApp.
-                </p>
-                <p style={{ fontSize: 11, color: '#475569', textAlign: 'center' }}>
-                  WhatsApp {'→'} Settings {'→'} Linked Devices {'→'} Link a Device
-                </p>
+              <div style={{ padding: '6px 14px', background: '#FEF3C7', borderBottom: '1px solid #FDE68A', fontSize: 11, color: '#92400E', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>📱</span> Scan QR in terminal — WhatsApp → Settings → Linked Devices → Link a Device
               </div>
             )}
 
-            {/* Messages */}
-            {waStatus === 'ready' && (
+            {/* Offline banner — subtle, non-blocking */}
+            {waStatus === 'offline' && (
+              <div style={{ padding: '5px 14px', background: '#FFF7ED', borderBottom: '1px solid #FED7AA', fontSize: 11, color: '#92400E', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#F97316', display: 'inline-block', flexShrink: 0 }} />
+                Bridge offline — showing cached data  · 
+                <code style={{ fontSize: 10, color: '#1D4ED8', background: '#EFF6FF', padding: '1px 6px', borderRadius: 4 }}>cd wa-bridge && node index.js</code>
+              </div>
+            )}
+
+            {/* Messages — shown for both ready and offline (mock) */}
+            {(waStatus === 'ready' || waStatus === 'offline') && (
               <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {waMessages.length === 0 && (
                   <p style={{ textAlign: 'center', color: '#334155', fontSize: 12, marginTop: 40 }}>
@@ -523,26 +536,26 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                   return (
                     <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
                       <div style={{
-                        maxWidth: '82%', padding: '8px 12px', borderRadius: '14px 14px 4px 14px',
-                        background: 'rgba(37,211,102,0.12)',
-                        border: '1px solid rgba(37,211,102,0.18)',
+                        maxWidth: '82%', padding: '9px 13px', borderRadius: '14px 14px 4px 14px',
+                        background: '#DCF8CE',
+                        border: '1px solid #B9F0A0',
                         position: 'relative',
                       }}>
                         {isVoice ? (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: 16 }}>{'🎙'}</span>
-                            <span style={{ fontSize: 12, color: '#6EE7B7' }}>
+                            <span style={{ fontSize: 16 }}>🎙</span>
+                            <span style={{ fontSize: 12, color: '#065F46' }}>
                               Voice note{msg.duration ? ` · ${msg.duration}s` : ''}
                             </span>
                           </div>
                         ) : (
-                          <p style={{ fontSize: 13, color: '#D1FAE5', lineHeight: 1.5, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                          <p className="task-desc" style={{ fontSize: 13, color: '#1E293B', lineHeight: 1.55, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                             {msg.body}
                           </p>
                         )}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginTop: 4 }}>
-                          <span style={{ fontSize: 10, color: '#1E3A2F' }}>{dateStr} {timeStr}</span>
-                          <span style={{ fontSize: 10, color: '#25D366' }}>{'✓✓'}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginTop: 5 }}>
+                          <span style={{ fontSize: 10, color: '#64748B' }}>{dateStr} {timeStr}</span>
+                          <span style={{ fontSize: 11, color: '#25D366' }}>✓✓</span>
                         </div>
                       </div>
 
@@ -554,9 +567,9 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                           style={{
                             fontSize: 10, fontWeight: 700, cursor: created ? 'default' : 'pointer',
                             padding: '3px 10px', borderRadius: 20,
-                            background: created ? 'rgba(52,211,153,0.12)' : 'rgba(59,130,246,0.1)',
-                            color: created ? '#34D399' : '#60A5FA',
-                            border: created ? '1px solid rgba(52,211,153,0.25)' : '1px solid rgba(59,130,246,0.2)',
+                            background: created ? '#DCFCE7' : '#DBEAFE',
+                            color: created ? '#16A34A' : '#1D4ED8',
+                            border: created ? '1px solid #BBF7D0' : '1px solid #BFDBFE',
                             transition: 'all 0.2s',
                           }}>
                           {creating ? 'Creating…' : created ? '✓ Task created' : '+ Create Task'}
@@ -567,6 +580,53 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Demo Outlook tab — shown when no real accounts connected */}
+        {tab === DEMO_MAIL_KEY && (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ padding: '5px 14px', background: '#FFF7ED', borderBottom: '1px solid #FED7AA', fontSize: 11, color: '#92400E', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#F97316', display: 'inline-block', flexShrink: 0 }} />
+              Outlook not connected — showing cached data  · 
+              <button onClick={handleConnectOutlook} style={{ fontSize: 10, color: '#1D4ED8', background: '#DBEAFE', border: '1px solid #BFDBFE', borderRadius: 4, padding: '1px 7px', cursor: 'pointer', fontWeight: 600 }}>Connect now</button>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {MOCK_EMAILS.map((email, i) => {
+                const initials = (email.sender_name || email.sender_email || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+                return (
+                  <div key={email.id} className="row-hover"
+                       style={{ display: 'flex', alignItems: 'flex-start', gap: 11, padding: '11px 14px', borderBottom: '1px solid #F1F5F9', cursor: 'pointer' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, position: 'relative', background: '#DBEAFE', border: '1px solid #BFDBFE', color: '#1D4ED8', fontSize: 11 }}>
+                      {initials}
+                      {!email.is_read && (
+                        <div style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, borderRadius: '50%', background: '#3B82F6', border: '1.5px solid #F8FAFC' }} />
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+                        <span style={{ fontSize: 12, color: email.is_read ? '#94A3B8' : '#1E293B', fontWeight: email.is_read ? 400 : 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {email.sender_name || email.sender_email}
+                        </span>
+                        <span style={{ color: '#94A3B8', fontSize: 10, flexShrink: 0 }}>
+                          {formatDistanceToNow(new Date(email.received_at), { addSuffix: true })}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 11, color: email.is_read ? '#CBD5E1' : '#475569', margin: '3px 0 5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {email.subject}
+                      </p>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        {email.is_flagged && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 4, background: '#FEE2E2', color: '#DC2626', fontWeight: 700 }}>🚩 Flagged</span>}
+                        <button onClick={e => { e.stopPropagation() }}
+                                style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#DBEAFE', color: '#1D4ED8', border: '1px solid #BFDBFE', cursor: 'pointer', fontWeight: 600 }}>
+                          + Task
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
 
@@ -972,7 +1032,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
             {/* Header */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(30,58,138,0.06)',
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#F1F5F9' }}>New Task</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1E293B' }}>New Task</span>
               <button onClick={() => setNewTaskModal(null)}
                       style={{ background: 'rgba(30,58,138,0.06)', border: 'none', borderRadius: 8,
                                width: 28, height: 28, cursor: 'pointer', color: '#64748B', fontSize: 16,
@@ -986,7 +1046,7 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
 
               {/* Context (read-only) */}
               <div style={{ fontSize: 11, color: '#475569', padding: '8px 12px',
-                            background: 'rgba(255,255,255,0.03)', borderRadius: 8,
+                            background: '#F1F5F9', borderRadius: 8,
                             border: '1px solid #E2E8F0' }}>
                 {newTaskModal.context}
               </div>
@@ -1002,12 +1062,12 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                   rows={3}
                   style={{
                     width: '100%', padding: '10px 12px', resize: 'vertical',
-                    background: 'rgba(30,58,138,0.04)', border: '1px solid #E2E8F0',
+                    background: '#F8FAFC', border: '1px solid #CBD5E1',
                     borderRadius: 10, outline: 'none', fontSize: 13, color: '#1E293B',
                     fontFamily: 'inherit', boxSizing: 'border-box',
                   }}
-                  onFocus={e  => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
-                  onBlur={e   => (e.target.style.borderColor = '#E2E8F0')}
+                  onFocus={e  => (e.target.style.borderColor = '#3B82F6')}
+                  onBlur={e   => (e.target.style.borderColor = '#CBD5E1')}
                 />
               </div>
 
@@ -1020,20 +1080,20 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                   </label>
                   <div style={{ display: 'flex', gap: 6 }}>
                     {[
-                      { val: 1, label: 'High',   color: '#F87171', bg: 'rgba(248,113,113,0.12)' },
-                      { val: 2, label: 'Med',    color: '#FBBF24', bg: 'rgba(251,191,36,0.12)'  },
-                      { val: 3, label: 'Low',    color: '#34D399', bg: 'rgba(52,211,153,0.12)'  },
+                      { val: 1, label: 'High',   color: '#DC2626', bg: 'rgba(220,38,38,0.1)'   },
+                      { val: 2, label: 'Med',    color: '#D97706', bg: 'rgba(217,119,6,0.1)'   },
+                      { val: 3, label: 'Low',    color: '#16A34A', bg: 'rgba(22,163,74,0.1)'   },
                     ].map(p => (
                       <button key={p.val}
                         onClick={() => setNewTaskModal(prev => prev ? { ...prev, priority: p.val } : null)}
                         style={{
                           flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 11, fontWeight: 700,
                           cursor: 'pointer', transition: 'all 0.15s',
-                          background: newTaskModal.priority === p.val ? p.bg : 'rgba(255,255,255,0.03)',
-                          color: newTaskModal.priority === p.val ? p.color : '#475569',
+                          background: newTaskModal.priority === p.val ? p.bg : '#F8FAFC',
+                          color: newTaskModal.priority === p.val ? p.color : '#94A3B8',
                           border: newTaskModal.priority === p.val
-                            ? `1px solid ${p.color}44`
-                            : '1px solid rgba(30,58,138,0.06)',
+                            ? `1px solid ${p.color}`
+                            : '1px solid #E2E8F0',
                         }}>
                         {p.label}
                       </button>
@@ -1052,9 +1112,8 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                     onChange={e => setNewTaskModal(prev => prev ? { ...prev, due_date: e.target.value } : null)}
                     style={{
                       padding: '7px 10px', borderRadius: 10, fontSize: 12, color: '#1E293B',
-                      background: 'rgba(30,58,138,0.04)', border: '1px solid #E2E8F0',
+                      background: '#F8FAFC', border: '1px solid #CBD5E1',
                       outline: 'none', width: '100%', boxSizing: 'border-box',
-                      colorScheme: 'dark',
                     }}
                   />
                 </div>
@@ -1066,9 +1125,9 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
                 disabled={newTaskSaving || !newTaskModal.description.trim()}
                 style={{
                   padding: '11px', borderRadius: 10, fontWeight: 700, fontSize: 13,
-                  background: newTaskSaving ? 'rgba(99,102,241,0.1)' : 'rgba(99,102,241,0.2)',
-                  color: newTaskSaving ? '#475569' : '#818CF8',
-                  border: '1px solid rgba(99,102,241,0.25)', cursor: newTaskSaving ? 'default' : 'pointer',
+                  background: newTaskSaving ? '#E2E8F0' : '#3B82F6',
+                  color: newTaskSaving ? '#94A3B8' : '#ffffff',
+                  border: 'none', cursor: newTaskSaving ? 'default' : 'pointer',
                   transition: 'all 0.2s', marginTop: 4,
                 }}>
                 {newTaskSaving ? 'Saving…' : 'Save Task'}
@@ -1081,18 +1140,24 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
       {/* WA compose */}
       {tab === 'whatsapp' && (
         <div className="flex items-center gap-2.5 px-4 py-2.5 flex-shrink-0"
-             style={{ borderTop: '1px solid #E2E8F0', background: 'rgba(8,11,18,0.7)' }}>
+             style={{ borderTop: '1px solid #E2E8F0', background: '#F8FAFC' }}>
           <input value={input} onChange={e => setInput(e.target.value)}
-                 placeholder="Reply via WhatsApp…"
-                 className="flex-1 input-base px-4 py-2"
-                 style={{ fontSize: '13px' }}
-                 onFocus={e  => (e.target.style.borderColor = 'rgba(37,211,102,0.45)')}
-                 onBlur={e   => (e.target.style.borderColor = '#E2E8F0')} />
-          <button className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
-                  style={{ background: 'rgba(37,211,102,0.15)', color: '#25D366',
-                           border: '1px solid rgba(37,211,102,0.25)', fontSize: '14px' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(37,211,102,0.28)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(37,211,102,0.15)')}>
+                 placeholder="Message via WhatsApp…"
+                 className="flex-1 px-4 py-2"
+                 style={{
+                   fontSize: '13px', borderRadius: 20, border: '1px solid #CBD5E1',
+                   outline: 'none', background: '#ffffff', color: '#1E293B',
+                 }}
+                 onFocus={e  => (e.target.style.borderColor = '#25D366')}
+                 onBlur={e   => (e.target.style.borderColor = '#CBD5E1')} />
+          <button
+                  style={{
+                    background: '#25D366', color: '#ffffff', border: 'none',
+                    borderRadius: 20, padding: '7px 16px', fontSize: '13px', fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#1DAA52')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '#25D366')}>
             Send
           </button>
         </div>
