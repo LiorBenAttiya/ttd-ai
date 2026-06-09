@@ -64,17 +64,18 @@ def _ensure_chromium(node_bin: str, wa_src: str, node_env: dict) -> bool:
 
     log.info("Chromium not found — downloading to %s (~120 MB, ~2 min first run)...", cache_dir)
 
+    # CJS script — reads puppeteer's own pinned Chrome version, no network call needed
     dl_script = (
-        "import { install, resolveBuildId } from '@puppeteer/browsers';\n"
+        "const { install } = require('@puppeteer/browsers');\n"
+        "const { PUPPETEER_REVISIONS } = require('puppeteer-core/lib/cjs/puppeteer/revisions.js');\n"
         "const cacheDir = process.env.PUPPETEER_CACHE_DIR;\n"
-        "(async () => {\n"
-        "  const buildId = await resolveBuildId('chrome', 'linux', 'stable');\n"
-        "  console.log('[chromium] resolvedBuildId:', buildId);\n"
-        "  const result = await install({ browser: 'chrome', buildId, cacheDir });\n"
-        "  console.log('[chromium] ready:', result.executablePath);\n"
-        "})().catch(e => { console.error('[chromium] FAILED:', e.message); process.exit(1); });\n"
+        "const buildId = PUPPETEER_REVISIONS.chrome;\n"
+        "console.log('[chromium] target buildId:', buildId);\n"
+        "install({ browser: 'chrome', buildId, cacheDir })\n"
+        "  .then(r => { console.log('[chromium] ready:', r.executablePath); })\n"
+        "  .catch(e => { console.error('[chromium] FAILED:', e.message); process.exit(1); });\n"
     )
-    script_path = os.path.join(wa_src, "_dl_chromium.mjs")
+    script_path = os.path.join(wa_src, "_dl_chromium.js")
     try:
         with open(script_path, "w") as f:
             f.write(dl_script)
