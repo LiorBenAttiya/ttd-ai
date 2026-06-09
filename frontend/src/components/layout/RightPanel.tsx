@@ -12,14 +12,26 @@ interface Props {
   filters: FilterState; selectedTaskId?: string; onTaskSelect: (id: string) => void
 }
 
+/* ── Daily Summary data (static scaffold — swap with real hook when available) ── */
+const SUMMARY_ITEMS = [
+  { icon: 'ti-checkbox',         color: '#22C55E', label: 'Tasks completed today',  value: '—' },
+  { icon: 'ti-clock-exclamation',color: '#EF4444', label: 'Overdue items',          value: '—' },
+  { icon: 'ti-mail',             color: '#3B82F6', label: 'Unread emails',          value: '—' },
+  { icon: 'ti-message-circle-2', color: '#25D366', label: 'WhatsApp messages',      value: '—' },
+]
+
+const QUICK_ACTIONS = [
+  { icon: 'ti-chart-infographic', label: 'Run Weekly Report',  color: '#5B21B6' },
+  { icon: 'ti-file-export',       label: 'Export to Excel',    color: '#065F46' },
+  { icon: 'ti-plug-connected',    label: 'Integrations',       color: '#1D4ED8' },
+  { icon: 'ti-adjustments-horizontal', label: 'Settings',     color: '#92400E' },
+]
+
 export default function RightPanel({ filters: _, selectedTaskId, onTaskSelect }: Props) {
   const [tab, setTab] = useState<RTab>('inbox')
 
-  // ── real task data ─────────────────────────────────────────
   const [tasks,        setTasks]        = useState<Task[]>([])
   const [tasksLoaded,  setTasksLoaded]  = useState(false)
-
-  // ── real email data ────────────────────────────────────────
   const [emails,       setEmails]       = useState<EmailMessage[]>([])
   const [emailsLoaded, setEmailsLoaded] = useState(false)
 
@@ -39,10 +51,8 @@ export default function RightPanel({ filters: _, selectedTaskId, onTaskSelect }:
         if (!accounts.length) { setEmailsLoaded(true); return }
         const all: EmailMessage[] = []
         for (const { email } of accounts) {
-          try {
-            const res = await fetchEmailMessages(20, email)
-            all.push(...(res.messages ?? []))
-          } catch { /* skip */ }
+          try { const res = await fetchEmailMessages(20, email); all.push(...(res.messages ?? [])) }
+          catch { /* skip */ }
         }
         all.sort((a, b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime())
         setEmails(all.slice(0, 30))
@@ -59,78 +69,75 @@ export default function RightPanel({ filters: _, selectedTaskId, onTaskSelect }:
   ]
 
   return (
-    <aside className="flex flex-col overflow-hidden"
-           style={{ width: '35%', flexShrink: 0, background: 'rgba(11,15,25,0.4)' }}>
+    <aside style={{ width: 300, flexShrink: 0, background: '#F1F5F9', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-      {/* Tab bar */}
-      <div className="flex items-center flex-shrink-0 px-2 pt-1"
-           style={{ borderBottom: '1px solid rgba(99,102,241,0.1)',
-                    background: 'rgba(14,18,32,0.5)' }}>
+      {/* ── Daily Summary card ── */}
+      <div style={{ background: '#1E3A8A', padding: '10px 12px 8px', flexShrink: 0 }}>
+        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.08em', color: '#93C5FD', marginBottom: 7 }}>DAILY SUMMARY</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
+          {SUMMARY_ITEMS.map(({ icon, color, label, value }) => (
+            <div key={label} style={{ background: 'rgba(255,255,255,0.09)', borderRadius: 6, padding: '5px 8px', display: 'flex', alignItems: 'center', gap: 7 }}>
+              <i className={`ti ${icon}`} style={{ fontSize: 14, color }} />
+              <div>
+                <div style={{ fontSize: 13, color: '#fff', fontWeight: 700, lineHeight: 1 }}>{value}</div>
+                <div style={{ fontSize: 8, color: '#93C5FD', lineHeight: 1.3, marginTop: 1 }}>{label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Tab bar ── */}
+      <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #E2E8F0', background: '#F8FAFC', flexShrink: 0, paddingLeft: 4 }}>
         {tabs.map(({ key, label, badge }) => (
           <button key={key} onClick={() => setTab(key)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-all ${
-                    tab === key ? 'tab-active' : 'tab-inactive'
-                  }`}
-                  style={{ borderBottomColor: tab === key ? (key === 'tasks' ? '#ef4444' : '#6366f1') : 'transparent' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 11px', fontSize: 11, fontWeight: tab === key ? 600 : 400, cursor: 'pointer', background: 'none', border: 'none', borderBottom: tab === key ? '2px solid #3B82F6' : '2px solid transparent', color: tab === key ? '#1D4ED8' : '#64748B', transition: 'color 150ms, border-color 150ms' }}>
             {label}
             {badge ? (
-              <span className="px-1.5 py-0.5 rounded-full text-white font-semibold"
-                    style={{ fontSize: '9px', minWidth: '16px', textAlign: 'center',
-                             background: key === 'tasks' ? 'rgba(239,68,68,0.7)' : 'rgba(99,102,241,0.7)' }}>
-                {badge}
-              </span>
+              <span style={{ fontSize: 9, minWidth: 16, textAlign: 'center', padding: '1px 5px', borderRadius: 999, background: key === 'tasks' ? '#FEE2E2' : '#DBEAFE', color: key === 'tasks' ? '#DC2626' : '#1D4ED8', fontWeight: 700 }}>{badge}</span>
             ) : null}
           </button>
         ))}
       </div>
 
-      {/* Content */}
-      <div className={`flex-1 ${tab === 'timeline' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+      {/* ── Content ── */}
+      <div style={{ flex: 1, overflow: tab === 'timeline' ? 'hidden' : 'auto', display: 'flex', flexDirection: 'column' }}>
 
-        {/* ── Inbox ── */}
+        {/* Inbox */}
         {tab === 'inbox' && (
-          <div className="flex flex-col">
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             {!emailsLoaded && (
-              <div style={{ padding: '32px 0', textAlign: 'center', color: '#475569', fontSize: 12 }}>
-                Loading emails…
-              </div>
+              <div style={{ padding: '32px 0', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Loading emails…</div>
             )}
             {emailsLoaded && emails.length === 0 && (
-              <div style={{ padding: '48px 16px', textAlign: 'center', color: '#334155' }}>
+              <div style={{ padding: '48px 16px', textAlign: 'center' }}>
                 <div style={{ fontSize: 28, marginBottom: 8 }}>📭</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>No emails</div>
-                <div style={{ fontSize: 11, marginTop: 4 }}>Connect a mailbox in the Feed tab</div>
+                <div style={{ fontSize: 11, marginTop: 4, color: '#94A3B8' }}>Connect a mailbox in the Feed tab</div>
               </div>
             )}
             {emails.map(email => (
-              <div key={email.id} className="row-hover flex items-start gap-3 px-4 py-3 cursor-pointer"
-                   style={{ borderBottom: '1px solid rgba(99,102,241,0.06)' }}>
-                <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-bold relative"
-                     style={{ background: 'rgba(0,120,212,0.15)', border: '1px solid rgba(0,120,212,0.2)',
-                              color: '#0078d4', fontSize: '11px' }}>
+              <div key={email.id} className="row-hover" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderBottom: '1px solid #F1F5F9', cursor: 'pointer' }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, position: 'relative', background: '#DBEAFE', border: '1px solid #BFDBFE', color: '#1D4ED8', fontSize: 11 }}>
                   {(email.sender_name || email.sender_email || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                   {!email.is_read && (
-                    <div className="unread-dot absolute -top-0.5 -right-0.5" />
+                    <div style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, borderRadius: '50%', background: '#3B82F6', border: '1.5px solid #F8FAFC' }} />
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-sm truncate"
-                          style={{ color: email.is_read ? 'rgba(148,163,184,0.5)' : 'rgba(226,232,240,0.92)',
-                                   fontWeight: email.is_read ? 400 : 600 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+                    <span style={{ fontSize: 12, color: email.is_read ? '#94A3B8' : '#1E293B', fontWeight: email.is_read ? 400 : 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {email.sender_name || email.sender_email}
                     </span>
-                    <span style={{ color: 'rgba(100,116,139,0.5)', fontSize: '10px', flexShrink: 0 }}>
+                    <span style={{ color: '#94A3B8', fontSize: 10, flexShrink: 0 }}>
                       {formatDistanceToNow(new Date(email.received_at), { addSuffix: true })}
                     </span>
                   </div>
-                  <p className="text-xs truncate mt-0.5"
-                     style={{ color: email.is_read ? 'rgba(100,116,139,0.38)' : 'rgba(148,163,184,0.7)' }}>
+                  <p style={{ fontSize: 11, color: email.is_read ? '#CBD5E1' : '#64748B', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {email.subject}
                   </p>
                   {email.account && (
-                    <span className="inline-block mt-1 px-1.5 py-0.5 rounded-full font-medium"
-                          style={{ fontSize: '9px', background: 'rgba(99,102,241,0.1)', color: '#818CF8' }}>
+                    <span style={{ display: 'inline-block', marginTop: 3, padding: '1px 6px', borderRadius: 999, fontSize: 9, background: '#EDE9FE', color: '#5B21B6', fontWeight: 600 }}>
                       {email.account.split('@')[0]}
                     </span>
                   )}
@@ -140,40 +147,32 @@ export default function RightPanel({ filters: _, selectedTaskId, onTaskSelect }:
           </div>
         )}
 
-        {/* ── Tasks ── */}
+        {/* Tasks */}
         {tab === 'tasks' && (
-          <div className="flex flex-col">
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             {!tasksLoaded && (
-              <div style={{ padding: '32px 0', textAlign: 'center', color: '#475569', fontSize: 12 }}>
-                Loading tasks…
-              </div>
+              <div style={{ padding: '32px 0', textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>Loading tasks…</div>
             )}
             {tasksLoaded && tasks.length === 0 && (
-              <div style={{ padding: '48px 16px', textAlign: 'center', color: '#334155' }}>
+              <div style={{ padding: '48px 16px', textAlign: 'center' }}>
                 <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>No open tasks</div>
-                <div style={{ fontSize: 11, marginTop: 4 }}>Import your tasks to get started</div>
+                <div style={{ fontSize: 11, marginTop: 4, color: '#94A3B8' }}>Import tasks to get started</div>
               </div>
             )}
             {tasks.map(task => (
               <button key={task.id} onClick={() => onTaskSelect(task.id)}
-                      className="row-hover flex items-start gap-3 px-4 py-3 text-left w-full"
-                      style={{ borderBottom: '1px solid rgba(99,102,241,0.06)',
-                               background: selectedTaskId === task.id ? 'rgba(30,40,68,0.6)' : undefined }}>
-                <div className="flex items-center gap-2 flex-1 min-w-0 pt-0.5">
-                  <div className={`priority-dot priority-${task.priority} flex-shrink-0`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate" style={{ color: 'rgba(226,232,240,0.8)' }}>
-                      {task.description}
-                    </p>
-                    <p className="mt-0.5" style={{ color: 'rgba(100,116,139,0.5)', fontSize: '10px' }}>
-                      {task.due_date ?? 'No date'}
-                    </p>
-                  </div>
+                      className="row-hover text-left"
+                      style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderBottom: '1px solid #F1F5F9', width: '100%', background: selectedTaskId === task.id ? '#EFF6FF' : 'transparent', border: 'none', cursor: 'pointer' }}>
+                <div className={`priority-dot priority-${task.priority}`} style={{ marginTop: 4 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 12, color: '#1E293B', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
+                    {task.description}
+                  </p>
+                  <p style={{ fontSize: 10, color: '#94A3B8', marginTop: 2, margin: '2px 0 0' }}>{task.due_date ?? 'No date'}</p>
                 </div>
                 {task.due_badge && (
-                  <span className="px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 mt-0.5"
-                        style={{ fontSize: '9px', background: task.due_badge_color + '18', color: task.due_badge_color }}>
+                  <span className={`badge-${task.due_status}`} style={{ fontSize: 9, padding: '2px 7px', flexShrink: 0, marginTop: 2 }}>
                     {task.due_badge}
                   </span>
                 )}
@@ -182,10 +181,24 @@ export default function RightPanel({ filters: _, selectedTaskId, onTaskSelect }:
           </div>
         )}
 
-        {/* ── Timeline ── */}
+        {/* Timeline */}
         {tab === 'timeline' && (
           <GanttChart selectedTaskId={selectedTaskId} onTaskSelect={onTaskSelect} />
         )}
+      </div>
+
+      {/* ── Quick Actions footer ── */}
+      <div style={{ borderTop: '1px solid #E2E8F0', padding: '8px 10px', background: '#EEF2F8', flexShrink: 0 }}>
+        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.07em', color: '#64748B', marginBottom: 5 }}>QUICK ACTIONS</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {QUICK_ACTIONS.map(({ icon, label, color }) => (
+            <button key={label} className="quick-action-row" style={{ width: '100%' }}>
+              <i className={`ti ${icon}`} style={{ fontSize: 14, color, flexShrink: 0 }} />
+              <span style={{ fontSize: 11, color: '#1E293B', fontWeight: 500 }}>{label}</span>
+              <i className="ti ti-chevron-right" style={{ fontSize: 11, color: '#CBD5E1', marginLeft: 'auto' }} />
+            </button>
+          ))}
+        </div>
       </div>
     </aside>
   )
