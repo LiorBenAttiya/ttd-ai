@@ -183,24 +183,7 @@ export default function RightPanel({ filters: _, selectedTaskId, onTaskSelect, o
         )}
       </div>
 
-      {/* ── Quick Actions footer ── */}
-      <div style={{ borderTop: '1px solid #E2E8F0', padding: '8px 10px', background: '#EEF2F8', flexShrink: 0 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.07em', color: '#64748B', marginBottom: 5 }}>QUICK ACTIONS</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {([
-            { icon: 'ti-chart-infographic', label: 'Run Weekly Report',  color: '#5B21B6', onClick: () => onNavChange?.('reports') },
-            { icon: 'ti-file-export',       label: 'Export to Excel',    color: '#065F46', onClick: () => { const a = document.createElement('a'); a.href = `${import.meta.env.VITE_API_URL ?? 'http://localhost:8000'}/tasks/export`; a.download = 'tasks.xlsx'; a.click() } },
-            { icon: 'ti-plug-connected',    label: 'Integrations',       color: '#1D4ED8', onClick: () => onNavChange?.('board') },
-            { icon: 'ti-adjustments-horizontal', label: 'Settings',     color: '#92400E', onClick: onSetup },
-          ]).map(({ icon, label, color, onClick }) => (
-            <button key={label} onClick={onClick} className="quick-action-row" style={{ width: '100%' }}>
-              <i className={`ti ${icon}`} style={{ fontSize: 14, color, flexShrink: 0 }} />
-              <span style={{ fontSize: 11, color: '#1E293B', fontWeight: 500 }}>{label}</span>
-              <i className="ti ti-chevron-right" style={{ fontSize: 11, color: '#CBD5E1', marginLeft: 'auto' }} />
-            </button>
-          ))}
-        </div>
-      </div>
+
     </aside>
   )
 }
