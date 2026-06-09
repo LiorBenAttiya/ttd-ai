@@ -65,11 +65,14 @@ def _ensure_chromium(node_bin: str, wa_src: str, node_env: dict) -> bool:
     log.info("Chromium not found — downloading to %s (~120 MB, ~2 min first run)...", cache_dir)
 
     dl_script = (
-        "import { install } from '@puppeteer/browsers';\n"
+        "import { install, resolveBuildId } from '@puppeteer/browsers';\n"
         "const cacheDir = process.env.PUPPETEER_CACHE_DIR;\n"
-        "install({ browser: 'chrome', cacheDir })\n"
-        "  .then(r => { console.log('[chromium] ready:', r.executablePath); })\n"
-        "  .catch(e => { console.error('[chromium] FAILED:', e.message); process.exit(1); });\n"
+        "(async () => {\n"
+        "  const buildId = await resolveBuildId('chrome', 'linux', 'stable');\n"
+        "  console.log('[chromium] resolvedBuildId:', buildId);\n"
+        "  const result = await install({ browser: 'chrome', buildId, cacheDir });\n"
+        "  console.log('[chromium] ready:', result.executablePath);\n"
+        "})().catch(e => { console.error('[chromium] FAILED:', e.message); process.exit(1); });\n"
     )
     script_path = os.path.join(wa_src, "_dl_chromium.mjs")
     try:
