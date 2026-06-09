@@ -2,17 +2,18 @@ import { useStats } from '@/hooks/useTasks'
 
 interface Props {
   onSetup?: () => void
-  onImport?: () => void
+  activeNav?: string
+  onNavChange?: (nav: string) => void
 }
 
 const NAV_ITEMS = [
-  { icon: 'ti-layout-kanban', label: 'Board'    },
-  { icon: 'ti-chart-dots-3',  label: 'Reports'  },
-  { icon: 'ti-address-book',  label: 'Contacts' },
-  { icon: 'ti-archive',       label: 'Archive'  },
+  { icon: 'ti-layout-kanban', label: 'Board',    nav: 'board'    },
+  { icon: 'ti-chart-dots-3',  label: 'Reports',  nav: 'reports'  },
+  { icon: 'ti-address-book',  label: 'Contacts', nav: 'contacts' },
+  { icon: 'ti-archive',       label: 'Archive',  nav: 'archive'  },
 ]
 
-function NavIcon({ icon, label, onClick }: { icon: string; label: string; onClick?: () => void }) {
+function NavIcon({ icon, label, onClick, active }: { icon: string; label: string; onClick?: () => void; active?: boolean }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
       <div
@@ -20,19 +21,20 @@ function NavIcon({ icon, label, onClick }: { icon: string; label: string; onClic
         style={{
           width: 36, height: 36, borderRadius: 10, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(255,255,255,0.08)',
+          background: active ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
           transition: 'background 0.15s',
+          boxShadow: active ? 'inset 0 0 0 1.5px rgba(255,255,255,0.3)' : 'none',
         }}
-        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.18)')}
-        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}>
-        <i className={`ti ${icon}`} style={{ fontSize: 17, color: 'rgba(255,255,255,0.88)' }} />
+        onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.18)' }}
+        onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}>
+        <i className={`ti ${icon}`} style={{ fontSize: 17, color: active ? '#fff' : 'rgba(255,255,255,0.75)' }} />
       </div>
-      <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.02em' }}>{label}</span>
+      <span style={{ fontSize: 8, color: active ? '#BAE6FD' : 'rgba(255,255,255,0.55)', letterSpacing: '0.02em', fontWeight: active ? 700 : 400 }}>{label}</span>
     </div>
   )
 }
 
-export default function NavRail({ onSetup }: Props) {
+export default function NavRail({ onSetup, activeNav = 'board', onNavChange }: Props) {
   const { data: stats } = useStats()
   const done   = stats?.completed ?? 0
   const todo   = stats?.pending   ?? 0
@@ -74,8 +76,8 @@ export default function NavRail({ onSetup }: Props) {
 
       {/* Main nav */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-        {NAV_ITEMS.map(({ icon, label }) => (
-          <NavIcon key={label} icon={icon} label={label} />
+        {NAV_ITEMS.map(({ icon, label, nav }) => (
+          <NavIcon key={label} icon={icon} label={label} active={activeNav === nav} onClick={() => onNavChange?.(nav)} />
         ))}
       </div>
 

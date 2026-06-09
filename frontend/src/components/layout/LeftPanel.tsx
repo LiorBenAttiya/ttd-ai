@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { FilterState, KanbanData } from '@/types'
-import { useKanban, useStats } from '@/hooks/useTasks'
+import { useKanban } from '@/hooks/useTasks'
 import KanbanBoard from '@/components/kanban/KanbanBoard'
 import ExcelImportModal from '@/components/ui/ExcelImportModal'
 

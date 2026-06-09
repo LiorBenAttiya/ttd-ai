@@ -154,9 +154,6 @@ export default function KanbanBoard({ todo, inProgress, done, selectedTaskId, on
     }
   }
 
-  /* approx height: 3 cards @ ~88px + header ~44px = ~308px */
-  const COL_H = 308
-
   return (
     <>
       <div style={{
@@ -222,24 +219,24 @@ export default function KanbanBoard({ todo, inProgress, done, selectedTaskId, on
       {pendingDrop && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 1000,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          background: 'rgba(15,23,42,0.25)', backdropFilter: 'blur(6px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }} onClick={() => setPendingDrop(null)}>
           <div onClick={e => e.stopPropagation()} style={{
-            background: 'rgba(8,12,28,0.98)',
-            border: '1px solid rgba(251,191,36,0.3)',
+            background: '#ffffff',
+            border: '1px solid #E2E8F0',
             borderRadius: 16, padding: '22px 24px', width: 320,
-            boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
+            boxShadow: '0 8px 32px rgba(15,23,42,0.12)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <span style={{ fontSize: 20 }}>&#9889;</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#FDE68A' }}>Moving to In Progress</span>
+              <span style={{ fontSize: 20 }}>⚡</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#D97706' }}>Moving to In Progress</span>
             </div>
             <p style={{ fontSize: 12, color: '#64748B', marginBottom: 16, lineHeight: 1.5 }}>
               {pendingDrop.task.description}
             </p>
             <div style={{
-              fontSize: 10, fontWeight: 700, color: '#475569',
+              fontSize: 10, fontWeight: 700, color: '#94A3B8',
               textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6,
             }}>
               Due Date (optional)
@@ -247,24 +244,24 @@ export default function KanbanBoard({ todo, inProgress, done, selectedTaskId, on
             <input type="date" value={dueVal} onChange={e => setDueVal(e.target.value)}
                    style={{
                      width: '100%', boxSizing: 'border-box',
-                     background: 'rgba(255,255,255,0.05)',
-                     border: '1px solid rgba(255,255,255,0.1)',
-                     borderRadius: 8, padding: '8px 12px', color: '#CBD5E1',
-                     fontSize: 13, outline: 'none', colorScheme: 'dark', marginBottom: 16,
+                     background: '#F8FAFC',
+                     border: '1px solid #CBD5E1',
+                     borderRadius: 8, padding: '8px 12px', color: '#1E293B',
+                     fontSize: 13, outline: 'none', marginBottom: 16,
                    }} />
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={confirmDrop} disabled={moving} style={{
                 flex: 1, padding: '9px 0', borderRadius: 9,
                 fontWeight: 700, fontSize: 13, cursor: moving ? 'wait' : 'pointer',
-                background: 'rgba(251,191,36,0.2)', color: '#FDE68A',
-                border: '1px solid rgba(251,191,36,0.4)',
+                background: '#FFFBEB', color: '#D97706',
+                border: '1px solid #FDE68A',
               }}>
                 {moving ? 'Moving...' : 'Start Working'}
               </button>
               <button onClick={() => setPendingDrop(null)} style={{
                 padding: '9px 14px', borderRadius: 9, fontWeight: 600, fontSize: 13,
-                background: 'rgba(255,255,255,0.04)', color: '#475569',
-                border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer',
+                background: '#F8FAFC', color: '#64748B',
+                border: '1px solid #E2E8F0', cursor: 'pointer',
               }}>Cancel</button>
             </div>
           </div>

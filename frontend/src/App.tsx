@@ -43,6 +43,7 @@ function Dashboard() {
   const [showNewTask, setShowNewTask] = useState(false)
   const [showSetup, setShowSetup]     = useState(false)
   const [showImport, setShowImport]   = useState(false)
+  const [activeNav,  setActiveNav]    = useState('board')
 
   const updateFilter = <K extends keyof FilterState>(key: K, val: FilterState[K]) =>
     setFilters(prev => ({ ...prev, [key]: val }))
@@ -59,8 +60,8 @@ function Dashboard() {
 
       {/* 4-panel body: NavRail + Feed + Kanban + Summary */}
       <div className="flex flex-1 overflow-hidden min-h-0">
-        <NavRail onSetup={() => setShowSetup(true)} />
-        <CentrePanel selectedTaskId={selectedTaskId} />
+        <NavRail onSetup={() => setShowSetup(true)} activeNav={activeNav} onNavChange={setActiveNav} />
+        <CentrePanel selectedTaskId={selectedTaskId} activeView={activeNav} />
         <LeftPanel
           filters={filters}
           selectedTaskId={selectedTaskId}
