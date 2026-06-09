@@ -376,7 +376,7 @@ export default function Toolbar({ filters, onViewChange, onCategoryChange, onSet
       </header>
 
       {/* ── Service status bar ── */}
-      <div style={{ background: '#162d6e', padding: '3px 14px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ background: '#162d6e', padding: '3px 14px 3px 78px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         {[
           { label: 'WhatsApp', status: services.wa },
           { label: 'Outlook',  status: services.backend },
