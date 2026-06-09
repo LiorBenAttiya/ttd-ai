@@ -69,7 +69,7 @@ function Dashboard() {
           onNewTask={() => setShowNewTask(true)}
           onImport={() => setShowImport(true)}
         />
-        <RightPanel filters={filters} selectedTaskId={selectedTaskId} onTaskSelect={setTaskId} />
+        <RightPanel filters={filters} selectedTaskId={selectedTaskId} onTaskSelect={setTaskId} onSetup={() => setShowSetup(true)} onNavChange={setActiveNav} />
       </div>
 
       {showNewTask && <NewTaskModal     onClose={() => setShowNewTask(false)} />}

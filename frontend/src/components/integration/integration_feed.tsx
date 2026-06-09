@@ -765,8 +765,24 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
             <div style={{ padding: '10px 14px', borderBottom: '1px solid #E2E8F0',
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', letterSpacing: '0.05em' }}>
-                  🤖 AI INBOX
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <linearGradient id="gi1" x1="0" y1="0" x2="18" y2="18" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#6366f1"/>
+                        <stop offset="50%" stopColor="#3B82F6"/>
+                        <stop offset="100%" stopColor="#06b6d4"/>
+                      </linearGradient>
+                      <linearGradient id="gi2" x1="0" y1="18" x2="18" y2="0" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#ec4899"/>
+                        <stop offset="100%" stopColor="#818cf8"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M9 1 L10.6 6.4 L16 8 L10.6 9.6 L9 15 L7.4 9.6 L2 8 L7.4 6.4 Z" fill="url(#gi1)"/>
+                    <path d="M15 1 L15.8 3.6 L18 4.5 L15.8 5.4 L15 8 L14.2 5.4 L12 4.5 L14.2 3.6 Z" fill="url(#gi2)" opacity="0.8"/>
+                    <path d="M3 12 L3.5 13.8 L5 14.5 L3.5 15.2 L3 17 L2.5 15.2 L1 14.5 L2.5 13.8 Z" fill="url(#gi1)" opacity="0.6"/>
+                  </svg>
+                  AI INBOX
                 </span>
                 {aiAnalyzedAt && aiSources && (
                   <span style={{ fontSize: 10, color: '#334155', marginLeft: 10 }}>
@@ -813,7 +829,29 @@ export default function IntegrationFeed({ selectedTaskId: _ }: Props) {
 
               {!aiLoading && aiSuggestions.length === 0 && !aiAnalyzedAt && (
                 <div style={{ textAlign: 'center', padding: '50px 20px', color: '#334155' }}>
-                  <div style={{ fontSize: 36, marginBottom: 12 }}>🤖</div>
+                  <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
+                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 4px 16px rgba(99,102,241,0.25))' }}>
+                      <defs>
+                        <linearGradient id="gie1" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#6366f1"/>
+                          <stop offset="45%" stopColor="#3B82F6"/>
+                          <stop offset="100%" stopColor="#06b6d4"/>
+                        </linearGradient>
+                        <linearGradient id="gie2" x1="0" y1="56" x2="56" y2="0" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#ec4899"/>
+                          <stop offset="100%" stopColor="#818cf8"/>
+                        </linearGradient>
+                        <radialGradient id="gie3" cx="50%" cy="50%" r="50%">
+                          <stop offset="0%" stopColor="#EEF2FF"/>
+                          <stop offset="100%" stopColor="#F0F9FF"/>
+                        </radialGradient>
+                      </defs>
+                      <circle cx="28" cy="28" r="28" fill="url(#gie3)"/>
+                      <path d="M28 6 L32 20 L46 24 L32 28 L28 42 L24 28 L10 24 L24 20 Z" fill="url(#gie1)"/>
+                      <path d="M44 6 L46 13 L52 16 L46 19 L44 26 L42 19 L36 16 L42 13 Z" fill="url(#gie2)" opacity="0.7"/>
+                      <path d="M10 36 L11.5 41 L16 43 L11.5 45 L10 50 L8.5 45 L4 43 L8.5 41 Z" fill="url(#gie1)" opacity="0.5"/>
+                    </svg>
+                  </div>
                   <p style={{ fontSize: 14, fontWeight: 600, color: '#64748B', marginBottom: 6 }}>
                     AI Inbox ready
                   </p>
