@@ -27,7 +27,7 @@ router = APIRouter(prefix="/email", tags=["email"])
 
 # ── Persistent token store ────────────────────────────────────────────────────
 # Keyed by email address: { "lior@lbatech.com": { access_token, ... }, ... }
-_TOKEN_FILE = Path(__file__).parent.parent.parent / "email_tokens.json"
+_TOKEN_FILE = Path("/home/email_tokens.json")
 _token_store: dict[str, dict] = {}
 
 
