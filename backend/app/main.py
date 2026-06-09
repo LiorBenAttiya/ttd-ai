@@ -75,7 +75,7 @@ def _ensure_chromium(node_bin: str, wa_src: str, node_env: dict) -> bool:
         "  .then(r => { console.log('[chromium] ready:', r.executablePath); })\n"
         "  .catch(e => { console.error('[chromium] FAILED:', e.message); process.exit(1); });\n"
     )
-    script_path = os.path.join(wa_src, "_dl_chromium.js")
+    script_path = os.path.join(wa_src, "_dl_chromium.cjs")
     try:
         with open(script_path, "w") as f:
             f.write(dl_script)
