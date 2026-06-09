@@ -1,12 +1,9 @@
+# This workflow is disabled — deployment is handled by deploy.yml
+# (GitHub Pages for frontend, Azure App Service for backend)
 name: Frontend — Build & Deploy
 
 on:
-  push:
-    branches: [main]
-    paths: ['frontend/**']
-  pull_request:
-    branches: [main]
-    paths: ['frontend/**']
+  workflow_dispatch:  # manual trigger only — disabled from auto-run
 
 jobs:
   build-and-deploy:
